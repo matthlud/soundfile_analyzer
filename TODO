@@ -1,6 +1,4 @@
-- Class: Playback (Output)
 - Class: Filter (base) -> Notch, Lowpass, Highpass
-- Class: Player
 - Class: Fileinfos
 - Class: Visualization
 - Wrapper: CLI
