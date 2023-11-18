@@ -4,6 +4,8 @@ import pathlib
 
 
 class FileHandler:
+    """this is a class which does something
+    """
     def __init__(self, dirs, files) -> None:
         self.files: str | [str] = files
         self.dirs: pathlib.Path | [pathlib.Path] = dirs

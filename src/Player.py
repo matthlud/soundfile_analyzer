@@ -7,7 +7,7 @@ class Player:
 
     def playForward(self) -> None:
         try:
-            print("Playing file {filename}".format(filename=self.filename))
+            print(f"Playing file {self.filename}")
             player = vlc.MediaPlayer(self.filename)
             player.play()
             time.sleep(3)

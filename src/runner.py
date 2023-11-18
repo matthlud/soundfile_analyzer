@@ -1,5 +1,5 @@
-from FileHandler import FileHandler
-from Player import Player
+from file_handler import FileHandler
+from player import Player
 
 sound_file = FileHandler(r"D:\Projekte\Coding\soundfile_analyzer", "You_Can_Do_It.mp3")
 sound_file.printFiles()
