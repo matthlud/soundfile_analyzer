@@ -1,13 +1,8 @@
-import os
-import FileHandler
-#import Player
-import vlc
-import time
+from FileHandler import FileHandler
+from Player import Player
 
-
-sound_file = FileHandler.FileHandler(r"D:\Projekte\Coding\soundfile_analyzer", "You_Can_Do_It.mp3")
-
+sound_file = FileHandler(r"D:\Projekte\Coding\soundfile_analyzer", "You_Can_Do_It.mp3")
 sound_file.printFiles()
 
-
-play_audio_file(sound_file.path_filename)
+player = Player(sound_file.path_filename)
+player.playForward()

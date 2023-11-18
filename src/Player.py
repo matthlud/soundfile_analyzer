@@ -2,15 +2,15 @@ import vlc
 import time
 
 class Player:
-    def __init__(self) -> None:
-        self.file_name = None
+    def __init__(self, filename) -> None:
+        self.filename = filename
 
     def playForward(self) -> None:
         try:
-            print("Playing file {file_name}".format(file_name=self.file_name))
-            player = vlc.MediaPlayer(self.file_name)
+            print("Playing file {filename}".format(filename=self.filename))
+            player = vlc.MediaPlayer(self.filename)
             player.play()
-            time.sleep(10)
+            time.sleep(3)
             player.stop()
         except Exception as e:
             print(f"An error occurred: {e}")
