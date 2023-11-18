@@ -2,4 +2,7 @@
 - Class: Fileinfos
 - Class: Visualization
 - Wrapper: CLI
+- Logger: Start logging infos
 - GUI
+- Marketing: command_line_mixer
+- Also -- on-the-fly -- import soundfiles via youtube
