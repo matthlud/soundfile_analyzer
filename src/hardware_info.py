@@ -1,0 +1,1 @@
+# TODO print all available info about hardware related to sound here
