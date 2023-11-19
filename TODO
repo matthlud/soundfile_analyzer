@@ -7,3 +7,5 @@
 - Marketing: command_line_mixer
 - Packages: bokeh
 - Also -- on-the-fly -- import soundfiles via youtube
+
+- Dependencies: ffmpeg plus environment variable path
