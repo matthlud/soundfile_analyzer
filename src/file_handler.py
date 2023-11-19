@@ -1,7 +1,6 @@
 """module docstring
 """
 import os
-import pathlib
 # import logging
 
 
@@ -9,9 +8,9 @@ class FileHandler:
     """this is a class which does something
     """
     def __init__(self, dirs, files) -> None:
-        self.files: str | [str] = files
-        self.dirs: pathlib.Path | [pathlib.Path] = dirs
-        self.path_filename: str | [str] = os.path.join(self.dirs, self.files)
+        self.files: str | list[str] = files
+        self.dirs: str | list[str] = dirs
+        self.path_filename: str | list[str] = os.path.join(self.dirs, self.files)
 
     def print_files(self) -> None:
         if self.files is [str]:
