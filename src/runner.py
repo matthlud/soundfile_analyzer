@@ -9,6 +9,7 @@ sound_file.print_files()
 
 audio_info = Analyzer(sound_file.path_filename)
 audio_info.print_meta_info()
+audio_info.visualize_spectrogram()
 
 # player = Player(sound_file.path_filename)
 # player.play_forward()
