@@ -13,26 +13,26 @@ class FileHandler:
         self.dirs: pathlib.Path | [pathlib.Path] = dirs
         self.path_filename: str | [str] = os.path.join(self.dirs, self.files)
 
-    def printFiles(self) -> None:
+    def print_files(self) -> None:
         if self.files is [str]:
             for temp_file in self.files:
                 print(temp_file)
         else:
             print(self.files)
 
-    def readFiles(self) -> None:
+    def read_files(self) -> None:
         # TODO add exception handler
         # TODO only accept correct files
         os.path.join(self.dirs, self.files)
 
-    def saveFiles(self) -> None:
+    def save_files(self) -> None:
         pass
 
-    def deleteFiles(self) -> None:
+    def delete_files(self) -> None:
         pass
 
-    def moveFiles(self) -> None:
+    def move_files(self) -> None:
         pass
 
-    def copyFiles(self) -> None:
+    def copy_files(self) -> None:
         pass
