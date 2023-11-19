@@ -1,13 +1,18 @@
-import vlc
+"""module docstring
+"""
 import time
+import vlc
+
 
 class Player:
+    """class docstring
+    """
     def __init__(self, filename) -> None:
         self.filename = filename
 
     def playForward(self) -> None:
         try:
-            print(f"Playing file {self.filename}")
+            print(f"Playing file: {self.filename}")
             player = vlc.MediaPlayer(self.filename)
             player.play()
             time.sleep(3)
