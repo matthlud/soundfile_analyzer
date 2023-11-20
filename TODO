@@ -4,7 +4,7 @@
 - Wrapper: CLI
 - Logger: Start logging infos
 - GUI
-- Marketing: command_line_mixer
+- Marketing: command_line_mixer, import image from GPT into README.md
 - Packages: bokeh
 - Also -- on-the-fly -- import soundfiles via youtube
 
