@@ -32,7 +32,7 @@ class Analyzer:
         """
         sample_array: np.array = self.__sample_array
         plt.figure(figsize=(16, 10))
-        random_number = random.randint(0, self.__sample_array.size) 
+        random_number = random.randint(0, self.__sample_array.size)
         plt.specgram(sample_array[random_number:(random_number+1000)])
         plt.title(f"Sample {random_number} to {random_number+1000} of {self.filename}")
         plt.show()
@@ -42,7 +42,7 @@ class Analyzer:
         """
         sample_array: np.array = self.__sample_array
         plt.figure(figsize=(16, 10))
-        random_number = random.randint(0, self.__sample_array.size) 
+        random_number = random.randint(0, self.__sample_array.size)
         plt.plot(sample_array[random_number:(random_number+1000)])
         plt.title(f"Sample {random_number} to {random_number+1000} of {self.filename}")
         plt.show()
