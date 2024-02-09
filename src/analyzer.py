@@ -15,7 +15,7 @@ class Analyzer:
     """
     def __init__(self, filename) -> None:
         self.filename = filename
-        self.__sample_array = self.__convert_sound_to_array()
+        self.sample = self.__convert_sound_to_array()
 
     def print_meta_info(self) -> None:
         """function docstring
@@ -30,9 +30,9 @@ class Analyzer:
     def visualize_spectrogram(self) -> None:
         """function docstring
         """
-        sample_array: np.array = self.__sample_array
+        sample_array: np.array = self.sample
         plt.figure(figsize=(16, 10))
-        random_number = random.randint(0, self.__sample_array.size)
+        random_number = random.randint(0, self.sample.size)
         plt.specgram(sample_array[random_number:(random_number+1000)])
         plt.title(f"Sample {random_number} to {random_number+1000} of {self.filename}")
         plt.show()
@@ -40,9 +40,9 @@ class Analyzer:
     def visualize_waveform(self) -> None:
         """function docstring
         """
-        sample_array: np.array = self.__sample_array
+        sample_array: np.array = self.sample
         plt.figure(figsize=(16, 10))
-        random_number = random.randint(0, self.__sample_array.size)
+        random_number = random.randint(0, self.sample.size)
         plt.plot(sample_array[random_number:(random_number+1000)])
         plt.title(f"Sample {random_number} to {random_number+1000} of {self.filename}")
         plt.show()
