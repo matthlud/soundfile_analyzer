@@ -1,25 +1,26 @@
-"""module docstring
-"""
+"""module docstring"""
+
 import random
 from mutagen.mp3 import MP3
+
 from pydub import AudioSegment
 import numpy as np
 from scipy.io import wavfile
 import matplotlib.pyplot as plt
+
 # import logging
 # import bokeh
 
 
 class Analyzer:
-    """class docstring
-    """
+    """class docstring"""
+
     def __init__(self, filename) -> None:
         self.filename = filename
         self.sample = self.__convert_sound_to_array()
 
     def print_meta_info(self) -> None:
-        """function docstring
-        """
+        """function docstring"""
         file: MP3 = MP3(self.filename)
         print(f"Filename: {file.filename}")
         print(f"Length [s]: {file.info.length}")
@@ -28,38 +29,33 @@ class Analyzer:
         print(f"Channels: {file.info.channels}")
 
     def visualize_spectrogram(self) -> None:
-        """function docstring
-        """
+        """function docstring"""
         sample_array: np.array = self.sample
         plt.figure(figsize=(16, 10))
         random_number = random.randint(0, self.sample.size)
-        plt.specgram(sample_array[random_number:(random_number+1000)])
+        plt.specgram(sample_array[random_number : (random_number + 1000)])
         plt.title(f"Sample {random_number} to {random_number+1000} of {self.filename}")
         plt.show()
 
     def visualize_waveform(self) -> None:
-        """function docstring
-        """
+        """function docstring"""
         sample_array: np.array = self.sample
         plt.figure(figsize=(16, 10))
         random_number = random.randint(0, self.sample.size)
-        plt.plot(sample_array[random_number:(random_number+1000)])
+        plt.plot(sample_array[random_number : (random_number + 1000)])
         plt.title(f"Sample {random_number} to {random_number+1000} of {self.filename}")
         plt.show()
 
     def visualize_amplitude(self) -> None:
-        """function docstring
-        """
+        """function docstring"""
         pass
 
     def visualize_current_amplitude(self) -> None:
-        """function docstring
-        """
+        """function docstring"""
         pass
 
     def __convert_sound_to_array(self) -> np.array:
-        """MP3 to numpy array
-        """
+        """MP3 to numpy array"""
         # input_format = os.path.splitext(self.filename)[-1]
         info_container: AudioSegment = AudioSegment.from_file(self.filename)
         sound_array: np.array = np.array(info_container.get_array_of_samples())
