@@ -1,8 +1,38 @@
 {
-    "python.testing.pytestArgs": [
-        "tests"
-    ],
-    "python.testing.unittestEnabled": false,
-    "python.testing.pytestEnabled": true,
-    "editor.rulers": [100]
+   "editor.rulers": [
+      100
+   ],
+   "editor.renderWhitespace": "all",
+   "editor.formatOnSave": true,
+   "editor.wordWrap": "on",
+   "editor.autoClosingBrackets": "always",
+   "editor.autoIndent": "full",
+   "window.titleBarStyle": "custom",
+   "editor.insertSpaces": true,
+   "files.trimTrailingWhitespace": true,
+   "files.insertFinalNewline": true,
+   "files.associations": {
+      "*.jsonc": "json"
+   },
+   "npm.fetchOnlinePackageInfo": false,
+   "window.openFilesInNewWindow": "off",
+   "typescript.disableAutomaticTypeAcquisition": true,
+   "workbench.settings.enableNaturalLanguageSearch": false,
+   "extensions.autoUpdate": true,
+   "editor.tabSize": 4,
+   "update.mode": "none",
+   "http.useLocalProxyConfiguration": false,
+   "redhat.telemetry.enabled": false,
+   "git.autofetch": false,
+   "window.dialogStyle": "custom",
+   "editor.bracketPairColorization.enabled": true,
+   "telemetry.telemetryLevel": "off",
+   "update.channel": "none",
+   "update.showReleaseNotes": false,
+   "workbench.enableExperiments": false,
+   "sonarlint.disableTelemetry": true,
+   "window.newWindowDimensions": "offset",
+   "window.openFoldersInNewWindow": "off",
+   "keyboard.dispatch": "keyCode",
+   "extensions.autoCheckUpdates": false
 }
