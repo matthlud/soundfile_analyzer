@@ -3,7 +3,7 @@
 import random
 from mutagen.mp3 import MP3
 
-from pydub import AudioSegment
+# from pydub import AudioSegment
 import numpy as np
 from scipy.io import wavfile
 import matplotlib.pyplot as plt
@@ -17,7 +17,7 @@ class Analyzer:
 
     def __init__(self, filename) -> None:
         self.filename = filename
-        self.sample = self.__convert_sound_to_array()
+        # self.sample = self.__convert_sound_to_array()
 
     def print_meta_info(self) -> None:
         """function docstring"""
@@ -54,9 +54,9 @@ class Analyzer:
         """function docstring"""
         pass
 
-    def __convert_sound_to_array(self) -> np.array:
-        """MP3 to numpy array"""
-        # input_format = os.path.splitext(self.filename)[-1]
-        info_container: AudioSegment = AudioSegment.from_file(self.filename)
-        sound_array: np.array = np.array(info_container.get_array_of_samples())
-        return sound_array
+    # def __convert_sound_to_array(self) -> np.array:
+    #     """MP3 to numpy array"""
+    #     # input_format = os.path.splitext(self.filename)[-1]
+    #     info_container: AudioSegment = AudioSegment.from_file(self.filename)
+    #     sound_array: np.array = np.array(info_container.get_array_of_samples())
+    #     return sound_array
