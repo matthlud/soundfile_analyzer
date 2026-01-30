@@ -161,3 +161,6 @@ cython_debug/
 
 # VS Code extension setting
 .flake8
+
+# Artifacts
+artifacts/
