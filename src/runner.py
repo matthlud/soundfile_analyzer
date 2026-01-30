@@ -1,11 +1,14 @@
-"""module docstring
-"""
+"""module docstring"""
+
 from file_handler import FileHandler
 from hardware_info import HardwareInfo
 from player import Player
 from analyzer import Analyzer
 
-sound_file = FileHandler(r"D:\Projekte\Coding\soundfile_analyzer\tests", "You_Can_Do_It.wav")
+sound_file = FileHandler(
+    r"/home/matthlud/Data/Projekte/Coding/soundfile_analyzer/tests/",
+    "You_Can_Do_It.wav",
+)
 sound_file.print_files()
 
 info = HardwareInfo()
