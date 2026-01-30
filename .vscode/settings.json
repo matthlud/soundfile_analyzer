@@ -34,5 +34,10 @@
    "window.newWindowDimensions": "offset",
    "window.openFoldersInNewWindow": "off",
    "keyboard.dispatch": "keyCode",
-   "extensions.autoCheckUpdates": false
+   "extensions.autoCheckUpdates": false,
+   "python.testing.pytestArgs": [
+      "tests"
+   ],
+   "python.testing.unittestEnabled": false,
+   "python.testing.pytestEnabled": true
 }
