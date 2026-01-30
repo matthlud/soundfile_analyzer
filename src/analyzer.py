@@ -3,10 +3,11 @@
 import random
 from mutagen.mp3 import MP3
 
-# from pydub import AudioSegment
+import librosa
 import numpy as np
 from scipy.io import wavfile
 import matplotlib.pyplot as plt
+
 
 # import logging
 # import bokeh
@@ -17,7 +18,7 @@ class Analyzer:
 
     def __init__(self, filename) -> None:
         self.filename = filename
-        # self.sample = self.__convert_sound_to_array()
+        self.sample, self.sr = librosa.load(self.filename, sr=None)
 
     def print_meta_info(self) -> None:
         """function docstring"""
@@ -35,7 +36,8 @@ class Analyzer:
         random_number = random.randint(0, self.sample.size)
         plt.specgram(sample_array[random_number : (random_number + 1000)])
         plt.title(f"Sample {random_number} to {random_number+1000} of {self.filename}")
-        plt.show()
+        plt.savefig("./artifacts/spectrogram.png")
+        plt.close()
 
     def visualize_waveform(self) -> None:
         """function docstring"""
@@ -44,7 +46,8 @@ class Analyzer:
         random_number = random.randint(0, self.sample.size)
         plt.plot(sample_array[random_number : (random_number + 1000)])
         plt.title(f"Sample {random_number} to {random_number+1000} of {self.filename}")
-        plt.show()
+        plt.savefig("./artifacts/waveform.png")
+        plt.close()
 
     def visualize_amplitude(self) -> None:
         """function docstring"""
@@ -54,9 +57,10 @@ class Analyzer:
         """function docstring"""
         pass
 
-    # def __convert_sound_to_array(self) -> np.array:
-    #     """MP3 to numpy array"""
-    #     # input_format = os.path.splitext(self.filename)[-1]
-    #     info_container: AudioSegment = AudioSegment.from_file(self.filename)
-    #     sound_array: np.array = np.array(info_container.get_array_of_samples())
-    #     return sound_array
+    def visualize_frequency(self) -> None:
+        """function docstring"""
+        pass
+
+    def visualize_current_frequency(self) -> None:
+        """function docstring"""
+        pass
