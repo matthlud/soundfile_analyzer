@@ -2,10 +2,9 @@
 - Class: Fileinfos
 - Class: Visualization
 - Wrapper: CLI
-- Logger: Start logging infos
 - GUI
 - Marketing: command_line_mixer, import image from GPT into README.md
-- Packages: bokeh
+- Packages: bokeh ?
 - Also -- on-the-fly -- import soundfiles via youtube
 
 - Dependencies: ffmpeg plus environment variable path
