@@ -17,11 +17,19 @@ class Analyzer:
     """class docstring"""
 
     def __init__(self, filename) -> None:
+        """Initialize the Analyzer with an audio file.
+
+        Args:
+            filename: Path to the audio file to analyze.
+        """
         self.filename = filename
         self.sample, self.sr = librosa.load(self.filename, sr=None)
 
     def print_meta_info(self) -> None:
-        """function docstring"""
+        """Print metadata information about the audio file.
+
+        Displays filename, length, bitrate, sample rate, and number of channels.
+        """
         file: MP3 = MP3(self.filename)
         print(f"Filename: {file.filename}")
         print(f"Length [s]: {file.info.length}")
@@ -30,7 +38,11 @@ class Analyzer:
         print(f"Channels: {file.info.channels}")
 
     def visualize_spectrogram(self) -> None:
-        """function docstring"""
+        """Create and save a spectrogram visualization of the audio.
+
+        Generates a random 1000-sample window from the audio and saves the
+        spectrogram as './artifacts/spectrogram.png'.
+        """
         sample_array: np.array = self.sample
         plt.figure(figsize=(16, 10))
         random_number = random.randint(0, self.sample.size)
@@ -40,7 +52,11 @@ class Analyzer:
         plt.close()
 
     def visualize_waveform(self) -> None:
-        """function docstring"""
+        """Create and save a waveform visualization of the audio.
+
+        Generates a random 1000-sample window from the audio and saves the
+        waveform plot as './artifacts/waveform.png'.
+        """
         sample_array: np.array = self.sample
         plt.figure(figsize=(16, 10))
         random_number = random.randint(0, self.sample.size)
@@ -49,18 +65,9 @@ class Analyzer:
         plt.savefig("./artifacts/waveform.png")
         plt.close()
 
-    def visualize_amplitude(self) -> None:
-        """function docstring"""
-        pass
-
-    def visualize_current_amplitude(self) -> None:
-        """function docstring"""
-        pass
-
     def visualize_frequency(self) -> None:
-        """function docstring"""
-        pass
+        """Create a frequency domain visualization of the audio.
 
-    def visualize_current_frequency(self) -> None:
-        """function docstring"""
+        This method is not yet implemented.
+        """
         pass
