@@ -5,12 +5,9 @@ from mutagen.mp3 import MP3
 
 import librosa
 import numpy as np
-from scipy.io import wavfile
+
+# from scipy.io import wavfile
 import matplotlib.pyplot as plt
-
-
-# import logging
-# import bokeh
 
 
 class Analyzer:
@@ -23,7 +20,8 @@ class Analyzer:
             filename: Path to the audio file to analyze.
         """
         self.filename = filename
-        self.sample, self.sr = librosa.load(self.filename, sr=None)
+        self.samples, self.sr = librosa.load(self.filename, sr=None)
+        self.random_number = self.__get_random_number()
 
     def print_meta_info(self) -> None:
         """Print metadata information about the audio file.
@@ -43,11 +41,12 @@ class Analyzer:
         Generates a random 1000-sample window from the audio and saves the
         spectrogram as './artifacts/spectrogram.png'.
         """
-        sample_array: np.array = self.sample
+        sample_array: np.array = self.samples
         plt.figure(figsize=(16, 10))
-        random_number = random.randint(0, self.sample.size)
-        plt.specgram(sample_array[random_number : (random_number + 1000)])
-        plt.title(f"Sample {random_number} to {random_number+1000} of {self.filename}")
+        plt.specgram(sample_array[self.random_number : (self.random_number + 1000)])
+        plt.title(
+            f"Sample {self.random_number} to {self.random_number+1000} of {self.filename}"
+        )
         plt.savefig("./artifacts/spectrogram.png")
         plt.close()
 
@@ -57,17 +56,36 @@ class Analyzer:
         Generates a random 1000-sample window from the audio and saves the
         waveform plot as './artifacts/waveform.png'.
         """
-        sample_array: np.array = self.sample
+        sample_array: np.array = self.samples
         plt.figure(figsize=(16, 10))
-        random_number = random.randint(0, self.sample.size)
-        plt.plot(sample_array[random_number : (random_number + 1000)])
-        plt.title(f"Sample {random_number} to {random_number+1000} of {self.filename}")
+        plt.plot(sample_array[self.random_number : (self.random_number + 1000)])
+        plt.title(
+            f"Sample {self.random_number} to {self.random_number+1000} of {self.filename}"
+        )
         plt.savefig("./artifacts/waveform.png")
         plt.close()
 
     def visualize_frequency(self) -> None:
         """Create a frequency domain visualization of the audio.
 
-        This method is not yet implemented.
+        Generates a random 1000-sample window from the audio and saves the
+        frequency spectrum plot as './artifacts/frequency.png'.
         """
-        pass
+        sample_array: np.array = self.samples
+        plt.figure(figsize=(16, 10))
+        plt.magnitude_spectrum(
+            sample_array[self.random_number : (self.random_number + 1000)], Fs=self.sr
+        )
+        plt.title(
+            f"Sample {self.random_number} to {self.random_number+1000} of {self.filename}"
+        )
+        plt.savefig("./artifacts/frequency.png")
+        plt.close()
+
+    def __get_random_number(self) -> int:
+        """Generate a random integer within the range of the audio sample size.
+
+        Returns:
+            A random integer between 0 and the size of the audio sample.
+        """
+        return random.randint(0, self.samples.size)
