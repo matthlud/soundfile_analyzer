@@ -1,9 +1,6 @@
 """module docstring"""
 
 import random
-from mutagen.mp3 import MP3
-
-import librosa
 import numpy as np
 
 # from scipy.io import wavfile
@@ -23,7 +20,14 @@ class Analyzer:
             filename: Path to the audio file to analyze.
         """
         self.filename = filename
-        self.samples, self.sr = librosa.load(self.filename, sr=None)
+        # Use soundfile to load audio; prefer light-weight dependency over librosa
+        samples, sr = sf.read(self.filename, dtype='float32')
+        samples = np.asarray(samples, dtype=float)
+        if getattr(samples, 'ndim', 1) > 1:
+            # convert to mono by averaging channels
+            samples = samples.mean(axis=1)
+        self.samples = samples
+        self.sr = int(sr)
         self.random_number = self.__get_random_number()
 
     def print_meta_info(self) -> None:
@@ -31,6 +35,11 @@ class Analyzer:
 
         Displays filename, length, bitrate, sample rate, and number of channels.
         """
+        try:
+            from mutagen.mp3 import MP3
+        except Exception:
+            print("mutagen not available; cannot read MP3 metadata")
+            return
         file: MP3 = MP3(self.filename)
         print(f"Filename: {file.filename}")
         print(f"Length [s]: {file.info.length}")
@@ -231,6 +240,7 @@ class Analyzer:
         """Generate a random integer within the range of the audio sample size.
 
         Returns:
-            A random integer between 0 and the size of the audio sample.
+            A random integer between 0 and the size of the audio sample minus one.
         """
-        return random.randint(0, self.samples.size)
+        max_index = max(0, int(getattr(self, 'samples', np.array([])).size) - 1)
+        return random.randint(0, max_index)
