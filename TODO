@@ -1,4 +1,4 @@
-- Class: Filter (base) -> Notch, Lowpass, Highpass
+- Class: Filter (base) -> Notch, Lowpass, Highpass (implemented)
 - Class: Fileinfos
 - Class: Visualization
 - Wrapper: CLI

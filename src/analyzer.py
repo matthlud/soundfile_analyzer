@@ -7,7 +7,10 @@ import librosa
 import numpy as np
 
 # from scipy.io import wavfile
+import soundfile as sf
+import os
 import matplotlib.pyplot as plt
+from filter import Filter, Lowpass, Highpass, Notch
 
 
 class Analyzer:
@@ -34,6 +37,43 @@ class Analyzer:
         print(f"Bitrate: {file.info.bitrate}")
         print(f"Samplerate: {file.info.sample_rate}")
         print(f"Channels: {file.info.channels}")
+
+    # --- Filter application helpers ---
+    def apply_filter(self, filter_obj, inplace: bool = False, out_path: str | None = None):
+        """Apply a Filter object to the current samples.
+
+        Args:
+            filter_obj: instance of Filter (must implement apply())
+            inplace: if True, replace self.samples with filtered result
+            out_path: optional path to save filtered audio (WAV)
+
+        Returns:
+            Filtered numpy array of samples
+        """
+        filtered = filter_obj.apply()
+        if inplace:
+            self.samples = filtered
+        if out_path:
+            dirn = os.path.dirname(out_path)
+            if dirn:
+                os.makedirs(dirn, exist_ok=True)
+            sf.write(out_path, filtered, self.sr)
+        return filtered
+
+    def apply_lowpass(self, cutoff: float, order: int = 4, inplace: bool = False, out_path: str | None = None):
+        """Apply a Lowpass filter and return filtered samples."""
+        filt = Lowpass(self.samples, self.sr, cutoff, order)
+        return self.apply_filter(filt, inplace=inplace, out_path=out_path)
+
+    def apply_highpass(self, cutoff: float, order: int = 4, inplace: bool = False, out_path: str | None = None):
+        """Apply a Highpass filter and return filtered samples."""
+        filt = Highpass(self.samples, self.sr, cutoff, order)
+        return self.apply_filter(filt, inplace=inplace, out_path=out_path)
+
+    def apply_notch(self, center_freq: float, Q: float = 30.0, inplace: bool = False, out_path: str | None = None):
+        """Apply a Notch filter and return filtered samples."""
+        filt = Notch(self.samples, self.sr, center_freq, Q)
+        return self.apply_filter(filt, inplace=inplace, out_path=out_path)
 
     def visualize_spectrogram(self) -> None:
         """Create and save a spectrogram visualization of the audio.
