@@ -113,52 +113,119 @@ class Analyzer:
         """Return duration of current samples in seconds."""
         return float(self.samples.size) / float(self.sr)
 
-    def visualize_spectrogram(self) -> None:
+    def visualize_spectrogram(self, start_sample: int | None = None, length: int = 1000, out_path: str | None = "./artifacts/spectrogram.png", figsize: tuple = (16, 10), dpi: int = 100) -> str:
         """Create and save a spectrogram visualization of the audio.
 
-        Generates a random 1000-sample window from the audio and saves the
-        spectrogram as './artifacts/spectrogram.png'.
+        Allows specifying start_sample and length (number of samples). Returns the path
+        to the saved image.
         """
         sample_array: np.array = self.samples
-        plt.figure(figsize=(16, 10))
-        plt.specgram(sample_array[self.random_number : (self.random_number + 1000)])
-        plt.title(
-            f"Sample {self.random_number} to {self.random_number+1000} of {self.filename}"
-        )
-        plt.savefig("./artifacts/spectrogram.png")
-        plt.close()
+        if sample_array.size == 0:
+            raise ValueError("No samples loaded")
 
-    def visualize_waveform(self) -> None:
+        if start_sample is None:
+            start = int(self.random_number)
+        else:
+            start = int(start_sample)
+        if start < 0:
+            start = 0
+        if start > max(0, sample_array.size - 1):
+            start = max(0, sample_array.size - 1)
+        end = int(min(sample_array.size, start + max(1, int(length))))
+        seg = sample_array[start:end]
+        if seg.size == 0:
+            seg = sample_array
+            start = 0
+            end = sample_array.size
+
+        plt.figure(figsize=figsize, dpi=dpi)
+        plt.specgram(seg, Fs=self.sr)
+        plt.title(f"Sample {start} to {end} of {self.filename}")
+        if out_path:
+            dirn = os.path.dirname(out_path)
+            if dirn:
+                os.makedirs(dirn, exist_ok=True)
+            plt.savefig(out_path)
+        else:
+            plt.savefig("./artifacts/spectrogram.png")
+        plt.close()
+        return out_path or "./artifacts/spectrogram.png"
+
+    def visualize_waveform(self, start_sample: int | None = None, length: int = 1000, out_path: str | None = "./artifacts/waveform.png", figsize: tuple = (16, 10), dpi: int = 100) -> str:
         """Create and save a waveform visualization of the audio.
 
-        Generates a random 1000-sample window from the audio and saves the
-        waveform plot as './artifacts/waveform.png'.
+        Allows specifying start_sample and length (number of samples). Returns the path
+        to the saved image.
         """
         sample_array: np.array = self.samples
-        plt.figure(figsize=(16, 10))
-        plt.plot(sample_array[self.random_number : (self.random_number + 1000)])
-        plt.title(
-            f"Sample {self.random_number} to {self.random_number+1000} of {self.filename}"
-        )
-        plt.savefig("./artifacts/waveform.png")
-        plt.close()
+        if sample_array.size == 0:
+            raise ValueError("No samples loaded")
 
-    def visualize_frequency(self) -> None:
+        if start_sample is None:
+            start = int(self.random_number)
+        else:
+            start = int(start_sample)
+        if start < 0:
+            start = 0
+        if start > max(0, sample_array.size - 1):
+            start = max(0, sample_array.size - 1)
+        end = int(min(sample_array.size, start + max(1, int(length))))
+        seg = sample_array[start:end]
+        if seg.size == 0:
+            seg = sample_array
+            start = 0
+            end = sample_array.size
+
+        plt.figure(figsize=figsize, dpi=dpi)
+        plt.plot(seg)
+        plt.title(f"Sample {start} to {end} of {self.filename}")
+        if out_path:
+            dirn = os.path.dirname(out_path)
+            if dirn:
+                os.makedirs(dirn, exist_ok=True)
+            plt.savefig(out_path)
+        else:
+            plt.savefig("./artifacts/waveform.png")
+        plt.close()
+        return out_path or "./artifacts/waveform.png"
+
+    def visualize_frequency(self, start_sample: int | None = None, length: int = 1000, out_path: str | None = "./artifacts/frequency.png", figsize: tuple = (16, 10), dpi: int = 100) -> str:
         """Create a frequency domain visualization of the audio.
 
-        Generates a random 1000-sample window from the audio and saves the
-        frequency spectrum plot as './artifacts/frequency.png'.
+        Allows specifying start_sample and length (number of samples). Returns the path
+        to the saved image.
         """
         sample_array: np.array = self.samples
-        plt.figure(figsize=(16, 10))
-        plt.magnitude_spectrum(
-            sample_array[self.random_number : (self.random_number + 1000)], Fs=self.sr
-        )
-        plt.title(
-            f"Sample {self.random_number} to {self.random_number+1000} of {self.filename}"
-        )
-        plt.savefig("./artifacts/frequency.png")
+        if sample_array.size == 0:
+            raise ValueError("No samples loaded")
+
+        if start_sample is None:
+            start = int(self.random_number)
+        else:
+            start = int(start_sample)
+        if start < 0:
+            start = 0
+        if start > max(0, sample_array.size - 1):
+            start = max(0, sample_array.size - 1)
+        end = int(min(sample_array.size, start + max(1, int(length))))
+        seg = sample_array[start:end]
+        if seg.size == 0:
+            seg = sample_array
+            start = 0
+            end = sample_array.size
+
+        plt.figure(figsize=figsize, dpi=dpi)
+        plt.magnitude_spectrum(seg, Fs=self.sr)
+        plt.title(f"Sample {start} to {end} of {self.filename}")
+        if out_path:
+            dirn = os.path.dirname(out_path)
+            if dirn:
+                os.makedirs(dirn, exist_ok=True)
+            plt.savefig(out_path)
+        else:
+            plt.savefig("./artifacts/frequency.png")
         plt.close()
+        return out_path or "./artifacts/frequency.png"
 
     def __get_random_number(self) -> int:
         """Generate a random integer within the range of the audio sample size.
