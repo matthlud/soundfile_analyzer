@@ -1,4 +1,6 @@
 - Class: Filter (base) -> Notch, Lowpass, Highpass (implemented)
+- Analyzer: wired filters; added bandpass, bandstop, save_samples, get_duration (implemented)
+- Tests: pytest tests for filters and analyzer added (tests/test_filters.py, tests/test_analyzer.py)
 - Class: Fileinfos
 - Class: Visualization
 - Wrapper: CLI

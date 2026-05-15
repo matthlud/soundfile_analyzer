@@ -75,6 +75,44 @@ class Analyzer:
         filt = Notch(self.samples, self.sr, center_freq, Q)
         return self.apply_filter(filt, inplace=inplace, out_path=out_path)
 
+    def apply_bandpass(self, lowcut: float, highcut: float, order: int = 4, inplace: bool = False, out_path: str | None = None):
+        """Apply a bandpass Butterworth filter between lowcut and highcut (Hz)."""
+        base = Filter(self.samples, self.sr)
+        filtered = base._butter_filter((lowcut, highcut), btype='band', order=order)
+        if inplace:
+            self.samples = filtered
+        if out_path:
+            dirn = os.path.dirname(out_path)
+            if dirn:
+                os.makedirs(dirn, exist_ok=True)
+            sf.write(out_path, filtered, self.sr)
+        return filtered
+
+    def apply_bandstop(self, lowcut: float, highcut: float, order: int = 4, inplace: bool = False, out_path: str | None = None):
+        """Apply a band-stop (bandstop) Butterworth filter between lowcut and highcut (Hz)."""
+        base = Filter(self.samples, self.sr)
+        filtered = base._butter_filter((lowcut, highcut), btype='bandstop', order=order)
+        if inplace:
+            self.samples = filtered
+        if out_path:
+            dirn = os.path.dirname(out_path)
+            if dirn:
+                os.makedirs(dirn, exist_ok=True)
+            sf.write(out_path, filtered, self.sr)
+        return filtered
+
+    def save_samples(self, out_path: str, samples: np.ndarray | None = None) -> None:
+        """Save samples (or self.samples) to out_path using soundfile."""
+        samples = self.samples if samples is None else samples
+        dirn = os.path.dirname(out_path)
+        if dirn:
+            os.makedirs(dirn, exist_ok=True)
+        sf.write(out_path, samples, self.sr)
+
+    def get_duration(self) -> float:
+        """Return duration of current samples in seconds."""
+        return float(self.samples.size) / float(self.sr)
+
     def visualize_spectrogram(self) -> None:
         """Create and save a spectrogram visualization of the audio.
 
