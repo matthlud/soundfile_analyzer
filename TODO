@@ -1,12 +1,6 @@
-- Class: Filter (base) -> Notch, Lowpass, Highpass (implemented)
-- Analyzer: wired filters; added bandpass, bandstop, save_samples, get_duration (implemented)
-- Tests: pytest tests for filters and analyzer added (tests/test_filters.py, tests/test_analyzer.py)
-- Class: Fileinfos
 - Class: Visualization
 - Wrapper: CLI
 - GUI
-- Marketing: command_line_mixer, import image from GPT into README.md
-- Packages: bokeh ?
 - Also -- on-the-fly -- import soundfiles via youtube
 
-- Dependencies: ffmpeg plus environment variable path
+- Marketing: command_line_mixer, import image from GPT into README.md
