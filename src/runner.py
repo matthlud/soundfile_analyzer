@@ -12,13 +12,14 @@ from player import Player
 from analyzer import Analyzer
 
 # Optional components implemented in this feature set
-# These modules were added: filters.py, fileinfos.py, visualization.py, queue.py, deck.py
+# These modules were added: filters.py, fileinfos.py, visualization.py, queue.py, deck.py, effects.py
 try:
     from filters import LowpassFilter, HighpassFilter, NotchFilter
     from queue import PlaybackQueue
     from deck import Deck
     from fileinfos import FileInfos
     from visualization import Visualization
+    from effects import Fader, Reverb
 except Exception:
     # If optional modules are missing, CLI will still expose basic functionality
     LowpassFilter = HighpassFilter = NotchFilter = None
@@ -26,6 +27,7 @@ except Exception:
     Deck = None
     FileInfos = None
     Visualization = None
+    Fader = Reverb = None
 
 
 def main(argv: list[str] | None = None) -> None:
@@ -58,6 +60,14 @@ def main(argv: list[str] | None = None) -> None:
     p_filter.add_argument("--filter", choices=["lowpass", "highpass", "notch"], required=True)
     p_filter.add_argument("--cutoff", type=float, default=1000.0)
     p_filter.add_argument("--q", type=float, default=30.0)
+
+    p_effect = sub.add_parser("apply-effect", help="Apply DJ effect (fader or reverb) to a file and write a temp file")
+    p_effect.add_argument("file")
+    p_effect.add_argument("--effect", choices=["fader", "reverb"], required=True)
+    p_effect.add_argument("--gain", type=float, default=1.0)
+    p_effect.add_argument("--delay", type=float, default=50.0, help="delay in ms for reverb")
+    p_effect.add_argument("--decay", type=float, default=0.5, help="decay factor for reverb")
+    p_effect.add_argument("--repeats", type=int, default=5, help="number of repeats for reverb")
 
     args = parser.parse_args(argv)
 
@@ -142,6 +152,21 @@ def main(argv: list[str] | None = None) -> None:
             f = NotchFilter(freq_hz=args.cutoff, sr=sr, q=args.q)
         newfile = deck.apply_filter(f)
         print("Filtered file written to:", newfile)
+        return
+
+    if args.cmd == "apply-effect":
+        if Deck is None or Fader is None:
+            print("Effects feature not available")
+            return
+        deck = Deck(args.file)
+        import librosa
+        _, sr = librosa.load(args.file, sr=None)
+        if args.effect == "fader":
+            eff = Fader(gain=args.gain)
+        else:
+            eff = Reverb(delay_ms=args.delay, decay=args.decay, repeats=args.repeats)
+        newfile = deck.apply_effect(eff)
+        print("Effect applied; output:", newfile)
         return
 
     parser.print_help()

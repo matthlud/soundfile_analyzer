@@ -101,6 +101,7 @@ A top-level command-line runner is available at src/runner.py which exposes comm
 - runner queue add FILE : add FILE to a persistent queue (queue.json at repo root).
 - runner queue next : pop and play the next file from the queue.
 - runner apply-filter FILE --filter {lowpass,highpass,notch} [--cutoff N] [--q Q] : apply a filter and write a temporary output file.
+- runner apply-effect FILE --effect {fader,reverb} [--gain N] [--delay MS] [--decay N] [--repeats N] : apply a DJ effect (fader or simple reverb) and write a temporary output file.
 
 Run the CLI from the repository root using:
 
