@@ -5,26 +5,40 @@ from __future__ import annotations
 import argparse
 import os
 
-from file_handler import FileHandler
-from player import Player
+# Core imports — support package (relative) and script (absolute) usage
+try:
+    from .file_handler import FileHandler
+    from .player import Player
+except Exception:
+    from file_handler import FileHandler
+    from player import Player
 
 # Optional components implemented in this feature set
-# These modules were added: filters.py, fileinfos.py, visualization.py, queue.py, deck.py, effects.py
+# These modules were added: filters.py, fileinfos.py, visualization.py, playback_queue.py, deck.py, effects.py
+LowpassFilter = HighpassFilter = NotchFilter = None
+PlaybackQueue = None
+Deck = None
+FileInfos = None
+Visualization = None
+Fader = Reverb = None
 try:
-    from filters import LowpassFilter, HighpassFilter, NotchFilter
-    from playback_queue import PlaybackQueue
-    from deck import Deck
-    from fileinfos import FileInfos
-    from visualization import Visualization
-    from effects import Fader, Reverb
+    from .filters import LowpassFilter, HighpassFilter, NotchFilter
+    from .playback_queue import PlaybackQueue
+    from .deck import Deck
+    from .fileinfos import FileInfos
+    from .visualization import Visualization
+    from .effects import Fader, Reverb
 except Exception:
-    # If optional modules are missing, CLI will still expose basic functionality
-    LowpassFilter = HighpassFilter = NotchFilter = None
-    PlaybackQueue = None
-    Deck = None
-    FileInfos = None
-    Visualization = None
-    Fader = Reverb = None
+    try:
+        from filters import LowpassFilter, HighpassFilter, NotchFilter
+        from playback_queue import PlaybackQueue
+        from deck import Deck
+        from fileinfos import FileInfos
+        from visualization import Visualization
+        from effects import Fader, Reverb
+    except Exception:
+        # leave optional components as None
+        pass
 
 
 def main(argv: list[str] | None = None) -> None:
