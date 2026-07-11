@@ -1,7 +1,12 @@
 """module docstring
 """
 import time
-import vlc
+
+# Import vlc lazily — not all environments have python-vlc installed
+try:
+    import vlc
+except Exception:
+    vlc = None
 
 
 class Player:
@@ -11,6 +16,9 @@ class Player:
         self.filename = filename
 
     def play_forward(self) -> None:
+        if vlc is None:
+            print("python-vlc is not installed; cannot play audio.")
+            return
         try:
             print(f"Playing file: {self.filename}")
             player = vlc.MediaPlayer(self.filename)
@@ -21,4 +29,8 @@ class Player:
             print(f"An error occurred: {e}")
 
     def play_backward(self) -> None:
-        pass
+        if vlc is None:
+            print("python-vlc is not installed; cannot play audio.")
+            return
+        # Not implemented yet
+        print("Backward playback not implemented")
