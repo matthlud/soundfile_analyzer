@@ -5,6 +5,7 @@ from mutagen.mp3 import MP3
 
 import librosa
 import numpy as np
+import os
 
 # from scipy.io import wavfile
 import matplotlib.pyplot as plt
@@ -47,6 +48,7 @@ class Analyzer:
         plt.title(
             f"Sample {self.random_number} to {self.random_number+1000} of {self.filename}"
         )
+        os.makedirs("./artifacts", exist_ok=True)
         plt.savefig("./artifacts/spectrogram.png")
         plt.close()
 
@@ -62,6 +64,7 @@ class Analyzer:
         plt.title(
             f"Sample {self.random_number} to {self.random_number+1000} of {self.filename}"
         )
+        os.makedirs("./artifacts", exist_ok=True)
         plt.savefig("./artifacts/waveform.png")
         plt.close()
 
@@ -79,6 +82,7 @@ class Analyzer:
         plt.title(
             f"Sample {self.random_number} to {self.random_number+1000} of {self.filename}"
         )
+        os.makedirs("./artifacts", exist_ok=True)
         plt.savefig("./artifacts/frequency.png")
         plt.close()
 
