@@ -1,10 +1,3 @@
-- Class: Filter (base) -> Notch, Lowpass, Highpass
-- Class: Fileinfos
-- Class: Visualization
-- Wrapper: CLI
-- GUI
-- Marketing: command_line_mixer, import image from GPT into README.md
-- Packages: bokeh ?
-- Also -- on-the-fly -- import soundfiles via youtube
-
-- Dependencies: ffmpeg plus environment variable path
+Also include DJ tool like faders, reverbs, etc.
+Connect it to the top level CLI.
+Write granular commits, push to current branch, write testcases, and update the README

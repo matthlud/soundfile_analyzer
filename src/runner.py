@@ -12,7 +12,7 @@ from player import Player
 # These modules were added: filters.py, fileinfos.py, visualization.py, queue.py, deck.py, effects.py
 try:
     from filters import LowpassFilter, HighpassFilter, NotchFilter
-    from queue import PlaybackQueue
+    from playback_queue import PlaybackQueue
     from deck import Deck
     from fileinfos import FileInfos
     from visualization import Visualization
