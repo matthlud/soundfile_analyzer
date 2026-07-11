@@ -1,6 +1,15 @@
-- Class: Visualization
-- Wrapper: CLI
-- GUI
-- Also -- on-the-fly -- import soundfiles via youtube
+I want to finalize my project for a cmd DJing tool. Tasks:
 
+- Class: Filter (base) -> Notch, Lowpass, Highpass
+- Class: FileInfos
+- Class: Visualization
+- Wrapper: CLI (runner)
+- GUI (future)
+- Also -- on-the-fly -- import soundfiles via youtube
+- Include DJ tools: faders, reverbs, EQ, crossfader, sampler
+- Connect all DJ features to the top-level CLI (apply-effect, apply-filter, queue, deck)
 - Marketing: command_line_mixer, import image from GPT into README.md
+- Create a branch, make granular commits, and write tests for everything
+
+If anything is unclear, ask before implementing.
+

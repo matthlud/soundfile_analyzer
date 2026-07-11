@@ -1,6 +1,6 @@
 import os, sys
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "src")))
-from queue import PlaybackQueue
+from playback_queue import PlaybackQueue
 
 
 def test_queue_persistence(tmp_path):
