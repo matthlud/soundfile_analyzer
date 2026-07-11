@@ -4,12 +4,9 @@ from __future__ import annotations
 
 import argparse
 import os
-import sys
 
 from file_handler import FileHandler
-from hardware_info import HardwareInfo
 from player import Player
-from analyzer import Analyzer
 
 # Optional components implemented in this feature set
 # These modules were added: filters.py, fileinfos.py, visualization.py, queue.py, deck.py, effects.py
