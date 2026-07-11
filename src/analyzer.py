@@ -1,65 +1,77 @@
-"""module docstring"""
+"""Analyzer utilities used by tests and the visualization wrapper.
 
-import random
-import numpy as np
+This Analyzer provides a small, test-friendly API for reading audio via soundfile,
+applying simple filters (bandpass/bandstop) and producing visualization images.
+It intentionally avoids heavy application-level dependencies so unit tests run
+quickly.
+"""
 
-# from scipy.io import wavfile
-import soundfile as sf
+from __future__ import annotations
+
 import os
+import random
+from typing import Optional
+
+import numpy as np
+import soundfile as sf
+from scipy.signal import butter, filtfilt, iirnotch
 import matplotlib.pyplot as plt
-from filter import Filter, Lowpass, Highpass, Notch
+
+try:
+    from mutagen.mp3 import MP3
+except Exception:  # pragma: no cover - metadata optional
+    MP3 = None
+
+
+def _safe_filtfilt(b, a, data):
+    try:
+        return filtfilt(b, a, data)
+    except Exception:
+        # fallback to causal filter when filtfilt fails (very short signals)
+        from scipy.signal import lfilter
+
+        return lfilter(b, a, data)
 
 
 class Analyzer:
-    """class docstring"""
+    """Small analyzer focused on tests' needs."""
 
-    def __init__(self, filename) -> None:
-        """Initialize the Analyzer with an audio file.
-
-        Args:
-            filename: Path to the audio file to analyze.
-        """
+    def __init__(self, filename: str) -> None:
         self.filename = filename
-        # Use soundfile to load audio; prefer light-weight dependency over librosa
-        samples, sr = sf.read(self.filename, dtype='float32')
-        samples = np.asarray(samples, dtype=float)
-        if getattr(samples, 'ndim', 1) > 1:
-            # convert to mono by averaging channels
-            samples = samples.mean(axis=1)
+        try:
+            data, sr = sf.read(self.filename, dtype="float32")
+            samples = np.asarray(data, dtype=float)
+            # convert multi-channel to mono
+            if getattr(samples, "ndim", 1) > 1:
+                samples = samples.mean(axis=1)
+        except Exception:
+            # fallback to librosa/audioread for problematic containers
+            import librosa
+
+            samples, sr = librosa.load(self.filename, sr=None)
+
         self.samples = samples
         self.sr = int(sr)
         self.random_number = self.__get_random_number()
 
     def print_meta_info(self) -> None:
-        """Print metadata information about the audio file.
-
-        Displays filename, length, bitrate, sample rate, and number of channels.
-        """
-        try:
-            from mutagen.mp3 import MP3
-        except Exception:
+        if MP3 is None:
             print("mutagen not available; cannot read MP3 metadata")
             return
-        file: MP3 = MP3(self.filename)
+        file = MP3(self.filename)
         print(f"Filename: {file.filename}")
-        print(f"Length [s]: {file.info.length}")
-        print(f"Bitrate: {file.info.bitrate}")
-        print(f"Samplerate: {file.info.sample_rate}")
-        print(f"Channels: {file.info.channels}")
+        print(f"Length [s]: {getattr(file.info, 'length', None)}")
+        print(f"Bitrate: {getattr(file.info, 'bitrate', None)}")
+        print(f"Samplerate: {getattr(file.info, 'sample_rate', None)}")
+        print(f"Channels: {getattr(file.info, 'channels', None)}")
 
-    # --- Filter application helpers ---
-    def apply_filter(self, filter_obj, inplace: bool = False, out_path: str | None = None):
-        """Apply a Filter object to the current samples.
-
-        Args:
-            filter_obj: instance of Filter (must implement apply())
-            inplace: if True, replace self.samples with filtered result
-            out_path: optional path to save filtered audio (WAV)
-
-        Returns:
-            Filtered numpy array of samples
-        """
-        filtered = filter_obj.apply()
+    # --- simple filtering helpers ---
+    def apply_bandpass(self, lowcut: float, highcut: float, order: int = 4, inplace: bool = False, out_path: Optional[str] = None):
+        nyq = 0.5 * self.sr
+        low = max(1e-6, min(lowcut / nyq, 0.9999))
+        high = max(low + 1e-6, min(highcut / nyq, 0.9999))
+        b, a = butter(order, [low, high], btype="band")
+        filtered = _safe_filtfilt(b, a, self.samples)
         if inplace:
             self.samples = filtered
         if out_path:
@@ -69,25 +81,12 @@ class Analyzer:
             sf.write(out_path, filtered, self.sr)
         return filtered
 
-    def apply_lowpass(self, cutoff: float, order: int = 4, inplace: bool = False, out_path: str | None = None):
-        """Apply a Lowpass filter and return filtered samples."""
-        filt = Lowpass(self.samples, self.sr, cutoff, order)
-        return self.apply_filter(filt, inplace=inplace, out_path=out_path)
-
-    def apply_highpass(self, cutoff: float, order: int = 4, inplace: bool = False, out_path: str | None = None):
-        """Apply a Highpass filter and return filtered samples."""
-        filt = Highpass(self.samples, self.sr, cutoff, order)
-        return self.apply_filter(filt, inplace=inplace, out_path=out_path)
-
-    def apply_notch(self, center_freq: float, Q: float = 30.0, inplace: bool = False, out_path: str | None = None):
-        """Apply a Notch filter and return filtered samples."""
-        filt = Notch(self.samples, self.sr, center_freq, Q)
-        return self.apply_filter(filt, inplace=inplace, out_path=out_path)
-
-    def apply_bandpass(self, lowcut: float, highcut: float, order: int = 4, inplace: bool = False, out_path: str | None = None):
-        """Apply a bandpass Butterworth filter between lowcut and highcut (Hz)."""
-        base = Filter(self.samples, self.sr)
-        filtered = base._butter_filter((lowcut, highcut), btype='band', order=order)
+    def apply_bandstop(self, lowcut: float, highcut: float, order: int = 4, inplace: bool = False, out_path: Optional[str] = None):
+        nyq = 0.5 * self.sr
+        low = max(1e-6, min(lowcut / nyq, 0.9999))
+        high = max(low + 1e-6, min(highcut / nyq, 0.9999))
+        b, a = butter(order, [low, high], btype="bandstop")
+        filtered = _safe_filtfilt(b, a, self.samples)
         if inplace:
             self.samples = filtered
         if out_path:
@@ -97,21 +96,7 @@ class Analyzer:
             sf.write(out_path, filtered, self.sr)
         return filtered
 
-    def apply_bandstop(self, lowcut: float, highcut: float, order: int = 4, inplace: bool = False, out_path: str | None = None):
-        """Apply a band-stop (bandstop) Butterworth filter between lowcut and highcut (Hz)."""
-        base = Filter(self.samples, self.sr)
-        filtered = base._butter_filter((lowcut, highcut), btype='bandstop', order=order)
-        if inplace:
-            self.samples = filtered
-        if out_path:
-            dirn = os.path.dirname(out_path)
-            if dirn:
-                os.makedirs(dirn, exist_ok=True)
-            sf.write(out_path, filtered, self.sr)
-        return filtered
-
-    def save_samples(self, out_path: str, samples: np.ndarray | None = None) -> None:
-        """Save samples (or self.samples) to out_path using soundfile."""
+    def save_samples(self, out_path: str, samples: Optional[np.ndarray] = None) -> None:
         samples = self.samples if samples is None else samples
         dirn = os.path.dirname(out_path)
         if dirn:
@@ -119,34 +104,25 @@ class Analyzer:
         sf.write(out_path, samples, self.sr)
 
     def get_duration(self) -> float:
-        """Return duration of current samples in seconds."""
         return float(self.samples.size) / float(self.sr)
 
-    def visualize_spectrogram(self, start_sample: int | None = None, length: int = 1000, out_path: str | None = "./artifacts/spectrogram.png", figsize: tuple = (16, 10), dpi: int = 100) -> str:
-        """Create and save a spectrogram visualization of the audio.
-
-        Allows specifying start_sample and length (number of samples). Returns the path
-        to the saved image.
-        """
-        sample_array: np.array = self.samples
+    # --- visualizations ---
+    def visualize_spectrogram(self, start_sample: Optional[int] = None, length: int = 1000, out_path: Optional[str] = "./artifacts/spectrogram.png", figsize: tuple = (16, 10), dpi: int = 100) -> str:
+        sample_array = self.samples
         if sample_array.size == 0:
             raise ValueError("No samples loaded")
-
         if start_sample is None:
             start = int(self.random_number)
         else:
             start = int(start_sample)
-        if start < 0:
-            start = 0
-        if start > max(0, sample_array.size - 1):
-            start = max(0, sample_array.size - 1)
+        start = max(0, start)
+        start = min(start, max(0, sample_array.size - 1))
         end = int(min(sample_array.size, start + max(1, int(length))))
         seg = sample_array[start:end]
         if seg.size == 0:
             seg = sample_array
             start = 0
             end = sample_array.size
-
         plt.figure(figsize=figsize, dpi=dpi)
         plt.specgram(seg, Fs=self.sr)
         plt.title(f"Sample {start} to {end} of {self.filename}")
@@ -156,35 +132,27 @@ class Analyzer:
                 os.makedirs(dirn, exist_ok=True)
             plt.savefig(out_path)
         else:
+            os.makedirs("./artifacts", exist_ok=True)
             plt.savefig("./artifacts/spectrogram.png")
         plt.close()
         return out_path or "./artifacts/spectrogram.png"
 
-    def visualize_waveform(self, start_sample: int | None = None, length: int = 1000, out_path: str | None = "./artifacts/waveform.png", figsize: tuple = (16, 10), dpi: int = 100) -> str:
-        """Create and save a waveform visualization of the audio.
-
-        Allows specifying start_sample and length (number of samples). Returns the path
-        to the saved image.
-        """
-        sample_array: np.array = self.samples
+    def visualize_waveform(self, start_sample: Optional[int] = None, length: int = 1000, out_path: Optional[str] = "./artifacts/waveform.png", figsize: tuple = (16, 10), dpi: int = 100) -> str:
+        sample_array = self.samples
         if sample_array.size == 0:
             raise ValueError("No samples loaded")
-
         if start_sample is None:
             start = int(self.random_number)
         else:
             start = int(start_sample)
-        if start < 0:
-            start = 0
-        if start > max(0, sample_array.size - 1):
-            start = max(0, sample_array.size - 1)
+        start = max(0, start)
+        start = min(start, max(0, sample_array.size - 1))
         end = int(min(sample_array.size, start + max(1, int(length))))
         seg = sample_array[start:end]
         if seg.size == 0:
             seg = sample_array
             start = 0
             end = sample_array.size
-
         plt.figure(figsize=figsize, dpi=dpi)
         plt.plot(seg)
         plt.title(f"Sample {start} to {end} of {self.filename}")
@@ -194,35 +162,27 @@ class Analyzer:
                 os.makedirs(dirn, exist_ok=True)
             plt.savefig(out_path)
         else:
+            os.makedirs("./artifacts", exist_ok=True)
             plt.savefig("./artifacts/waveform.png")
         plt.close()
         return out_path or "./artifacts/waveform.png"
 
-    def visualize_frequency(self, start_sample: int | None = None, length: int = 1000, out_path: str | None = "./artifacts/frequency.png", figsize: tuple = (16, 10), dpi: int = 100) -> str:
-        """Create a frequency domain visualization of the audio.
-
-        Allows specifying start_sample and length (number of samples). Returns the path
-        to the saved image.
-        """
-        sample_array: np.array = self.samples
+    def visualize_frequency(self, start_sample: Optional[int] = None, length: int = 1000, out_path: Optional[str] = "./artifacts/frequency.png", figsize: tuple = (16, 10), dpi: int = 100) -> str:
+        sample_array = self.samples
         if sample_array.size == 0:
             raise ValueError("No samples loaded")
-
         if start_sample is None:
             start = int(self.random_number)
         else:
             start = int(start_sample)
-        if start < 0:
-            start = 0
-        if start > max(0, sample_array.size - 1):
-            start = max(0, sample_array.size - 1)
+        start = max(0, start)
+        start = min(start, max(0, sample_array.size - 1))
         end = int(min(sample_array.size, start + max(1, int(length))))
         seg = sample_array[start:end]
         if seg.size == 0:
             seg = sample_array
             start = 0
             end = sample_array.size
-
         plt.figure(figsize=figsize, dpi=dpi)
         plt.magnitude_spectrum(seg, Fs=self.sr)
         plt.title(f"Sample {start} to {end} of {self.filename}")
@@ -232,15 +192,11 @@ class Analyzer:
                 os.makedirs(dirn, exist_ok=True)
             plt.savefig(out_path)
         else:
+            os.makedirs("./artifacts", exist_ok=True)
             plt.savefig("./artifacts/frequency.png")
         plt.close()
         return out_path or "./artifacts/frequency.png"
 
     def __get_random_number(self) -> int:
-        """Generate a random integer within the range of the audio sample size.
-
-        Returns:
-            A random integer between 0 and the size of the audio sample minus one.
-        """
-        max_index = max(0, int(getattr(self, 'samples', np.array([])).size) - 1)
+        max_index = max(0, int(getattr(self, "samples", np.array([])).size) - 1)
         return random.randint(0, max_index)
