@@ -90,6 +90,26 @@ soundfile_analyzer/
 - **src/** - Main source code for the audio analyzer application
 - **tests/** - Automated tests for validating functionality
 
+## Runner CLI
+
+A top-level command-line runner is available at src/runner.py which exposes common DJ-style operations:
+
+- runner list [-d DIR] : list audio files in DIR (defaults to src/tests or tests/).
+- runner info FILE : show metadata for FILE.
+- runner visualize FILE [--waveform] [--spectrogram] [--frequency] : create visual artifacts in ./artifacts/.
+- runner play FILE : play a file (requires python-vlc).
+- runner queue add FILE : add FILE to a persistent queue (queue.json at repo root).
+- runner queue next : pop and play the next file from the queue.
+- runner apply-filter FILE --filter {lowpass,highpass,notch} [--cutoff N] [--q Q] : apply a filter and write a temporary output file.
+
+Run the CLI from the repository root using:
+
+```bash
+python -m src.runner <command> [options]
+```
+
+Requirements for these features: librosa, soundfile, scipy, python-vlc (for playback). Run tests with `pytest` from the repo root.
+
 ## License
 
 See [LICENSE](LICENSE) file for details.
