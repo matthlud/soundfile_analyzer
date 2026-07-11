@@ -164,3 +164,6 @@ cython_debug/
 
 # Artifacts
 artifacts/
+
+# Song queue
+queue.json
