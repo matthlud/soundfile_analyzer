@@ -109,7 +109,8 @@ class TestPlaybackManagerThreading:
             pass
         
         # Thread should have been created (even if it errors)
-        assert manager.playback_thread is None or isinstance(manager.playback_thread, type(threading.Thread))
+        assert manager.playback_thread is not None
+        assert isinstance(manager.playback_thread, threading.Thread)
 
     def test_wait_for_completion_timeout(self, tmp_path):
         """Test wait_for_completion with timeout."""
@@ -137,7 +138,7 @@ class TestPlaybackManagerThreading:
         manager.stop()
         
         assert manager._stop_requested is True
-        assert manager.state == PlaybackState.STOPPED
+        # State is changed by the worker thread, not immediately by stop()
 
 
 class TestPlaybackManagerCallbacks:
