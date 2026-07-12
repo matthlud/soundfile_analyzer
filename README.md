@@ -118,6 +118,10 @@ A comprehensive command-line interface for audio analysis and DJ operations avai
 - `runner control previous` - Go to previous track
 - `runner control status` - Show playback status
 
+#### Interactive DJ Mode
+- `runner dj [--queue FILE]` - Launch interactive DJ mode with responsive console
+  - `--queue FILE` - Use custom queue file (default: queue.json at repo root)
+
 #### Queue Management
 - `runner queue add FILE` - Add file to persistent queue
 - `runner queue show` - Display full queue with current item highlighted
@@ -261,6 +265,90 @@ $ python runner.py control next    # Skip to next track (song2.wav)
 - Thread-safe state management
 - Real-time progress display continues while console accepts commands
 - Graceful handling of all playback state transitions
+
+#### Interactive DJ Mode (Recommended!)
+
+For the best interactive experience, use DJ mode to keep the console fully responsive while DJing:
+
+```bash
+python runner.py dj
+```
+
+This launches an interactive prompt where you can type commands freely while music plays. No more waiting for playback to finish - your input goes directly to the prompt!
+
+**DJ Mode Commands:**
+```
+🎵 dj> play /path/to/song.wav          # Play a file
+🎵 dj> demo /path/to/song.wav          # Play 3-second preview
+🎵 dj> stop                             # Stop playback
+🎵 dj> pause                            # Pause playback
+🎵 dj> resume                           # Resume playback
+🎵 dj> restart                          # Restart current track
+🎵 dj> next                             # Skip to next track
+🎵 dj> prev                             # Go to previous track
+🎵 dj> status                           # Show playback status
+🎵 dj> add /path/to/song.wav            # Add file to queue
+🎵 dj> queue                            # Show queue
+🎵 dj> queue next                       # Play next queued track
+🎵 dj> queue clear                      # Clear the queue
+🎵 dj> help                             # Show help
+🎵 dj> exit                             # Exit DJ mode
+```
+
+**Why DJ Mode?**
+
+DJ Mode provides true interactivity:
+- Type commands at `🎵 dj>` prompt while music plays
+- Progress bar displays without interfering with your input
+- No waiting - commands are instant
+- Main thread handles user input, background thread handles playback
+- Thread-safe command processing
+- Perfect for live DJing scenarios
+- Automatic queue advancement on track completion
+
+**DJ Mode Example Workflow:**
+```bash
+# Start DJ mode
+$ python runner.py dj
+
+🎵 dj> play intro.wav
+============================================================
+▶ NOW PLAYING
+============================================================
+File: intro.wav
+Duration: 0:30
+============================================================
+
+Progress: [████████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 0:10/0:30 33.3%
+
+🎵 dj> queue add next_song.wav    # Add while playing!
+Added to queue: next_song.wav
+
+🎵 dj> queue                       # Check queue
+============================================================
+🎵 PLAYBACK QUEUE
+============================================================
+► intro.wav (NOW PLAYING)
+
+Upcoming:
+  1. next_song.wav
+============================================================
+
+🎵 dj> status                      # Check status anytime
+▶ Playback Status:
+  State: playing
+  Playing: True
+  File: intro.wav
+
+🎵 dj> pause                       # Pause for announcements
+[Playback paused]
+
+🎵 dj> resume                      # Resume after speaking
+[Playback resumed]
+
+🎵 dj> exit
+Goodbye!
+```
 
 ### Usage Examples
 
