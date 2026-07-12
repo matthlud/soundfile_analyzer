@@ -104,9 +104,19 @@ A comprehensive command-line interface for audio analysis and DJ operations avai
 - `runner visualize FILE [--waveform] [--spectrogram] [--frequency]` - Create visual artifacts in ./artifacts/
 
 #### Playback
-- `runner play FILE [--full-length] [--demo]` - Play audio file
+- `runner play FILE [--full-length] [--demo] [--no-wait]` - Play audio file
   - `--full-length` - Play entire file (default)
   - `--demo` - Play only 3 seconds for preview
+  - `--no-wait` - Start playback in background (returns immediately)
+
+#### Playback Controls
+- `runner control stop` - Stop current playback
+- `runner control pause` - Pause current playback
+- `runner control resume` - Resume from pause
+- `runner control next` - Skip to next track
+- `runner control restart` - Restart current track
+- `runner control previous` - Go to previous track
+- `runner control status` - Show playback status
 
 #### Queue Management
 - `runner queue add FILE` - Add file to persistent queue
@@ -189,6 +199,68 @@ Features:
 - Automatic truncation for large queues (shows first 10 + count of remaining)
 - Color-coded for easy reading
 - Persistent storage to `queue.json` at repository root
+
+#### Responsive Console with Playback Controls
+
+Keep the console responsive while music is playing! Start playback in background mode and issue control commands without interrupting the currently playing track.
+
+**Background Playback:**
+```bash
+# Start playback in background
+python runner.py play /path/to/song.wav --no-wait
+
+# Console returns immediately; music plays in the background
+# Now you can issue control commands:
+```
+
+**Playback Control Commands:**
+
+All control commands execute immediately without waiting for current playback to finish:
+
+```bash
+# Control playback
+python runner.py control stop      # Stop current playback
+python runner.py control pause     # Pause playback
+python runner.py control resume    # Resume from pause
+python runner.py control next      # Skip to next track
+python runner.py control restart   # Restart current track from beginning
+python runner.py control previous  # Go to previous track
+python runner.py control status    # Show current playback status
+```
+
+**Workflow Example:**
+
+```bash
+# Terminal 1: Start playing a song in background
+$ python runner.py play song1.wav --no-wait
+Playback started in background. Use 'control status' to check status.
+
+# Terminal 1: Check status while music plays
+$ python runner.py control status
+State: playing
+Playing: True
+File: song1.wav
+
+# Terminal 1 or 2: Queue new songs
+$ python runner.py queue add song2.wav
+$ python runner.py queue add song3.wav
+
+# Terminal 1 or 2: View the queue while music plays
+$ python runner.py queue show
+
+# Terminal 1 or 2: Control playback at any time
+$ python runner.py control pause   # Pause the current song
+$ python runner.py control resume  # Resume playing
+$ python runner.py control next    # Skip to next track (song2.wav)
+```
+
+**Features:**
+- Console remains responsive for all commands
+- Background playback thread runs independently
+- Multiple control commands can be issued in quick succession
+- Thread-safe state management
+- Real-time progress display continues while console accepts commands
+- Graceful handling of all playback state transitions
 
 ### Usage Examples
 
