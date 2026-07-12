@@ -23,6 +23,7 @@ Visualization = None
 Fader = Reverb = None
 QueueDisplay = None
 PlaybackManager = None
+PlaybackREPL = None
 
 # Global playback manager instance for control commands
 _playback_manager = None
@@ -36,6 +37,7 @@ try:
     from .effects import Fader, Reverb
     from .playback_ui import QueueDisplay
     from .playback_manager import PlaybackManager
+    from .playback_repl import PlaybackREPL
 except Exception:
     try:
         from filters import LowpassFilter, HighpassFilter, NotchFilter
@@ -46,6 +48,7 @@ except Exception:
         from effects import Fader, Reverb
         from playback_ui import QueueDisplay
         from playback_manager import PlaybackManager
+        from playback_repl import PlaybackREPL
     except Exception:
         # leave optional components as None
         pass
@@ -85,6 +88,9 @@ def main(argv: list[str] | None = None) -> None:
     csub.add_parser("restart", help="Restart current track")
     csub.add_parser("previous", help="Go to previous track")
     csub.add_parser("status", help="Show playback status")
+
+    p_dj = sub.add_parser("dj", help="Interactive DJ mode with responsive console")
+    p_dj.add_argument("--queue", help="Path to queue file")
 
     p_queue = sub.add_parser("queue", help="Queue operations")
     qsub = p_queue.add_subparsers(dest="qcmd")
@@ -199,6 +205,23 @@ def main(argv: list[str] | None = None) -> None:
             print(f"Playing: {status['is_playing']}")
             if status['current_file']:
                 print(f"File: {status['current_file']}")
+        return
+
+    if args.cmd == "dj":
+        if PlaybackREPL is None:
+            print("DJ mode not available")
+            return
+        
+        # Determine queue file location
+        queue_file = args.queue if hasattr(args, 'queue') and args.queue else \
+                     os.path.join(project_root, "queue.json")
+        
+        # Launch interactive DJ mode
+        repl = PlaybackREPL(queue_file=queue_file)
+        try:
+            repl.run()
+        except KeyboardInterrupt:
+            print("\nDJ mode terminated")
         return
 
     if args.cmd == "queue":
