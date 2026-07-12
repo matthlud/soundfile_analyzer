@@ -22,7 +22,14 @@ try:
 except ImportError:
     librosa = None
 
-from .playback_ui import PlaybackDisplay
+PlaybackDisplay = None
+try:
+    from .playback_ui import PlaybackDisplay
+except ImportError:
+    try:
+        from playback_ui import PlaybackDisplay
+    except ImportError:
+        PlaybackDisplay = None
 
 
 class PlaybackState(Enum):
