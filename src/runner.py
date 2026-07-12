@@ -21,6 +21,7 @@ Deck = None
 FileInfos = None
 Visualization = None
 Fader = Reverb = None
+QueueDisplay = None
 try:
     from .filters import LowpassFilter, HighpassFilter, NotchFilter
     from .playback_queue import PlaybackQueue
@@ -28,6 +29,7 @@ try:
     from .fileinfos import FileInfos
     from .visualization import Visualization
     from .effects import Fader, Reverb
+    from .playback_ui import QueueDisplay
 except Exception:
     try:
         from filters import LowpassFilter, HighpassFilter, NotchFilter
@@ -36,6 +38,7 @@ except Exception:
         from fileinfos import FileInfos
         from visualization import Visualization
         from effects import Fader, Reverb
+        from playback_ui import QueueDisplay
     except Exception:
         # leave optional components as None
         pass
@@ -57,14 +60,26 @@ def main(argv: list[str] | None = None) -> None:
     p_visual.add_argument("--spectrogram", action="store_true")
     p_visual.add_argument("--frequency", action="store_true")
 
-    p_play = sub.add_parser("play", help="Play a file (short demo)")
+    p_play = sub.add_parser("play", help="Play a file")
     p_play.add_argument("file")
+    p_play.add_argument("--full-length", action="store_true", default=True,
+                       help="Play entire file (default: True)")
+    p_play.add_argument("--demo", action="store_true",
+                       help="Play only 3 seconds (demo mode)")
 
     p_queue = sub.add_parser("queue", help="Queue operations")
     qsub = p_queue.add_subparsers(dest="qcmd")
     qadd = qsub.add_parser("add")
     qadd.add_argument("file")
     qnext = qsub.add_parser("next")
+    qnext.add_argument("--full-length", action="store_true", default=True,
+                       help="Play entire file (default: True)")
+    qnext.add_argument("--demo", action="store_true",
+                       help="Play only 3 seconds (demo mode)")
+    qlist = qsub.add_parser("list")
+    qshow = qsub.add_parser("show")
+    qshow.add_argument("--current", action="store_true",
+                       help="Show only current item")
 
     p_filter = sub.add_parser("apply-filter", help="Apply filter to a file and write a temp file")
     p_filter.add_argument("file")
@@ -126,8 +141,9 @@ def main(argv: list[str] | None = None) -> None:
         return
 
     if args.cmd == "play":
+        full_length = not args.demo if hasattr(args, 'demo') else True
         p = Player(args.file)
-        p.play_forward()
+        p.play_forward(full_length=full_length, show_ui=True)
         return
 
     if args.cmd == "queue":
@@ -138,13 +154,23 @@ def main(argv: list[str] | None = None) -> None:
             q.add(args.file)
             print("Added to queue:", args.file)
         elif args.qcmd == "next":
+            full_length = not args.demo if hasattr(args, 'demo') else True
             nxt = q.next()
             if nxt:
-                print("Next in queue:", nxt)
+                if QueueDisplay:
+                    QueueDisplay.print_queue(None, q.list())
                 p = Player(nxt)
-                p.play_forward()
+                p.play_forward(full_length=full_length, show_ui=True)
             else:
                 print("Queue is empty")
+        elif args.qcmd == "list" or args.qcmd == "show":
+            current = q.current()
+            remaining = q.list()[1:] if q.list() else []
+            if QueueDisplay:
+                QueueDisplay.print_queue(current, remaining)
+            else:
+                print("Current:", current)
+                print("Queue:", remaining)
         return
 
     if args.cmd == "apply-filter":
