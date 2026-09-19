@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "soundfile-analyzer"
+version = "0.1.0"
+description = "A lightweight, DJ-first command-line audio player and analyzer"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { file = "LICENSE" }
+dependencies = [
+    "colorama>=0.4",
+    "librosa>=0.11",
+    "matplotlib>=3.8",
+    "mutagen>=1.47",
+    "numpy>=1.26",
+    "python-vlc>=3.0",
+    "scipy>=1.11",
+    "soundfile>=0.13",
+]
+
+[project.scripts]
+soundfile-analyzer = "src.runner:main"
+
+[tool.setuptools]
+packages = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
