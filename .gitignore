@@ -165,5 +165,8 @@ cython_debug/
 # Artifacts
 artifacts/
 
+# Local audio fixtures
+tests/You_Can_Do_It.wav
+
 # Song queue
 queue.json
