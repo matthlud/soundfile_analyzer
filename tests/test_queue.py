@@ -1,6 +1,6 @@
 import os, sys
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "src")))
-from playback_queue import PlaybackQueue
+from playback_queue import PlaybackQueue, QueuePersistenceError
 
 
 def test_queue_persistence(tmp_path):
@@ -94,3 +94,24 @@ def test_queue_persistence_across_instances(tmp_path):
     q3 = PlaybackQueue(str(storage))
     assert q3.list() == ["song2.wav"]
 
+
+def test_queue_rejects_malformed_persistence(tmp_path):
+    storage = tmp_path / "queue.json"
+    storage.write_text('{"not": "a queue"}')
+    try:
+        PlaybackQueue(str(storage))
+    except QueuePersistenceError as exc:
+        assert "Invalid playback queue" in str(exc)
+    else:
+        raise AssertionError("malformed queue should raise")
+
+
+def test_queue_remove_and_move(tmp_path):
+    q = PlaybackQueue(str(tmp_path / "queue.json"))
+    q.add("a")
+    q.add("b")
+    q.add("c")
+    q.move(2, 0)
+    assert q.list() == ["c", "a", "b"]
+    assert q.remove(1) == "a"
+    assert q.list() == ["c", "b"]
