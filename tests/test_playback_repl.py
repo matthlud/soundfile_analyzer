@@ -118,6 +118,13 @@ class TestPlaybackREPLCommands:
         captured = capsys.readouterr()
         assert "Added" in captured.out or "add" in captured.out.lower()
 
+    def test_quoted_path_is_preserved(self, tmp_path):
+        queue_file = tmp_path / "queue.json"
+        repl = PlaybackREPL(queue_file=str(queue_file))
+        path = str(tmp_path / "song with spaces.wav")
+        repl._process_command(f'add "{path}"')
+        assert repl.queue.list() == [path]
+
     def test_exit_command(self):
         """Test exit command."""
         repl = PlaybackREPL()
@@ -141,6 +148,15 @@ class TestPlaybackREPLCommands:
         
         captured = capsys.readouterr()
         assert "Unknown command" in captured.out or "unknown" in captured.out.lower()
+
+    def test_scan_and_find_commands(self, tmp_path, capsys):
+        (tmp_path / "club edit.wav").write_bytes(b"not-a-valid-audio-file")
+        repl = PlaybackREPL()
+        repl._process_command(f"scan {tmp_path}")
+        repl._process_command("find club")
+        captured = capsys.readouterr()
+        assert "Indexed 1 tracks" in captured.out
+        assert "club edit" in captured.out
 
     def test_empty_command(self):
         """Test empty command."""

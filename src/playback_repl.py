@@ -9,21 +9,26 @@ from __future__ import annotations
 import sys
 import threading
 import time
+import shlex
 from typing import Optional
 
 PlaybackManager = None
 PlaybackQueue = None
 QueueDisplay = None
+scan_folder = None
+search_tracks = None
 
 try:
     from .playback_manager import PlaybackManager
     from .playback_queue import PlaybackQueue
     from .playback_ui import QueueDisplay
+    from .library import scan_folder, search_tracks
 except ImportError:
     try:
         from playback_manager import PlaybackManager
         from playback_queue import PlaybackQueue
         from playback_ui import QueueDisplay
+        from library import scan_folder, search_tracks
     except ImportError:
         pass
 
@@ -35,7 +40,7 @@ class PlaybackREPL:
     plays music in background thread.
     """
 
-    def __init__(self, queue_file: Optional[str] = None):
+    def __init__(self, queue_file: Optional[str] = None, library_path: Optional[str] = None):
         """Initialize the REPL.
         
         Args:
@@ -45,6 +50,8 @@ class PlaybackREPL:
         self.queue = PlaybackQueue(queue_file) if queue_file else None
         self.running = False
         self.current_file: Optional[str] = None
+        self.library_path = library_path
+        self.library = scan_folder(library_path) if library_path and scan_folder else []
         
         # Set up callbacks
         if self.manager:
@@ -55,11 +62,10 @@ class PlaybackREPL:
         """Handle playback completion."""
         self.current_file = None
         if self.queue:
-            next_file = self.queue.current()
+            next_file = self.queue.next()
             if next_file:
                 print("\n[Playback complete, playing next track...]")
                 self._play_file(next_file, full_length=True)
-                self.current_file = next_file
 
     def _on_next_requested(self) -> Optional[str]:
         """Handle next track request."""
@@ -101,6 +107,10 @@ QUEUE MANAGEMENT:
   queue                - Show queue
   queue next           - Play next queued track
   queue clear          - Clear the queue
+
+LIBRARY:
+  scan <folder>        - Scan a folder for audio files
+  find <text>          - Search the current library
 
 GENERAL:
   help                 - Show this help
@@ -162,7 +172,11 @@ GENERAL:
         Args:
             command: The command string to process
         """
-        parts = command.split()
+        try:
+            parts = shlex.split(command)
+        except ValueError as exc:
+            print(f"Invalid command quoting: {exc}")
+            return
         if not parts:
             return
         
@@ -198,6 +212,24 @@ GENERAL:
                 print(f"Added to queue: {args[0]}")
             else:
                 print("Queue not available")
+        elif cmd == "remove" and args:
+            if self.queue:
+                try:
+                    removed = self.queue.remove(int(args[0]))
+                    print(f"Removed from queue: {removed}")
+                except (ValueError, IndexError) as exc:
+                    print(f"Unable to remove queue item: {exc}")
+            else:
+                print("Queue not available")
+        elif cmd == "move" and len(args) == 2:
+            if self.queue:
+                try:
+                    self.queue.move(int(args[0]), int(args[1]))
+                    print("Queue item moved")
+                except (ValueError, IndexError) as exc:
+                    print(f"Unable to move queue item: {exc}")
+            else:
+                print("Queue not available")
         elif cmd == "queue":
             if args and args[0] == "next":
                 if self.queue:
@@ -220,6 +252,22 @@ GENERAL:
                     QueueDisplay.print_queue(current, remaining)
                 else:
                     print("Queue not available")
+        elif cmd == "scan" and args:
+            if scan_folder:
+                self.library_path = args[0]
+                self.library = scan_folder(args[0])
+                print(f"Indexed {len(self.library)} tracks")
+            else:
+                print("Library feature not available")
+        elif cmd == "find" and args:
+            if search_tracks:
+                matches = search_tracks(self.library, " ".join(args))
+                if not matches:
+                    print("No matching tracks")
+                for index, track in enumerate(matches, 1):
+                    print(f"{index}. {track.label} [{track.path}]")
+            else:
+                print("Library feature not available")
         
         # General commands
         elif cmd == "help":
@@ -234,4 +282,4 @@ GENERAL:
     def _cleanup(self) -> None:
         """Clean up resources."""
         if self.manager:
-            self.manager.stop()
+            self.manager.shutdown()
