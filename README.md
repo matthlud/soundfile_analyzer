@@ -151,13 +151,17 @@ also keeps installation and failure recovery simple.
 ## Development
 
 ```bash
-pytest
+python -m pip install -e ".[dev]"
+python -m compileall -q src tests
+python -m ruff check src tests
 python -m build
+python -m pytest -q
 ```
 
 Playback tests use the real command and queue interfaces but do not require an
 audio device. VLC/device smoke tests should be run manually on the target Linux
-machine.
+machine. GitHub Actions runs the same compile, lint, build, and test checks for
+pushes and pull requests.
 
 ## License
 
