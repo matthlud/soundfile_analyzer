@@ -92,6 +92,27 @@ class TestPlaybackManagerControls:
         # Previous should restart current or handle queue
         assert manager.state in (PlaybackState.PLAYING, PlaybackState.PAUSED)
 
+    def test_pause_and_resume_call_backend(self):
+        class FakePlayer:
+            def __init__(self):
+                self.paused = 0
+                self.played = 0
+
+            def pause(self):
+                self.paused += 1
+
+            def play(self):
+                self.played += 1
+
+        player = FakePlayer()
+        manager = PlaybackManager(player_factory=lambda _: player)
+        manager.player = player
+        manager.state = PlaybackState.PLAYING
+        manager.pause()
+        manager.resume()
+        assert player.paused == 1
+        assert player.played == 1
+
 
 class TestPlaybackManagerThreading:
     """Test background playback threading."""

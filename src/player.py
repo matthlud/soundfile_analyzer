@@ -43,7 +43,7 @@ class Player:
 
     def play_forward(self, full_length: bool = True, show_ui: bool = True) -> None:
         """Play audio file.
-        
+
         Args:
             full_length: If True, play entire file; if False, play for 3 seconds (demo mode)
             show_ui: If True, display fancy playback UI; if False, simple text output
@@ -83,8 +83,4 @@ class Player:
             print(f"An error occurred: {e}")
 
     def play_backward(self) -> None:
-        if vlc is None:
-            print("python-vlc is not installed; cannot play audio.")
-            return
-        # Not implemented yet
-        print("Backward playback not implemented")
+        print("Backward playback not implemented.")

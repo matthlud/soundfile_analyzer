@@ -1,423 +1,164 @@
 # soundfile_analyzer
 
-Comprehensive audio analysis and DJ-style playback system. Features visualization, real-time playback with progress tracking, filtering, queue management, and audio effects.
+**A small, local-first command-line tool for finding, previewing, and playing a DJ
+set.** It also includes optional audio metadata, visualization, filtering, and
+effect commands.
 
-![Docu1](/docs/equipment_desk_1920s.jpeg)
+## What it does
+
+- Interactive DJ console with playback controls and a persistent queue
+- Full-track playback or quick three-second previews
+- Track metadata and audio-file listings
+- Waveform, spectrogram, and frequency visualizations
+- Optional filters and effects for preparing files
+- Scriptable commands for queueing and playback
+
+The primary workflow is `dj`; the other commands are preparation and inspection
+tools rather than separate applications.
 
 ## Requirements
 
-- **Python 3.13 or newer**
+- Linux with Python 3.11 or newer
+- VLC installed and available on `PATH` for playback
+- A supported audio file such as WAV, MP3, FLAC, or OGG
 
-## Installation
-
-### 1. Install Python 3.13+
-
-Ensure you have Python 3.13 or newer installed on your system. You can download it from [python.org](https://www.python.org/downloads/).
-
-To check your Python version:
-```bash
-python3 --version
-```
-
-### 2. Create a Virtual Environment
-
-A virtual environment isolates project dependencies from your system Python. Create one using `venv`:
+On Debian/Ubuntu:
 
 ```bash
-python3 -m venv soundfile_analyzer_venv
+sudo apt install vlc
 ```
 
-This creates a `soundfile_analyzer_venv/` directory in your project.
+## Install
 
-### 3. Activate the Virtual Environment
-
-**On Linux/macOS:**
-```bash
-source soundfile_analyzer_venv/bin/activate
-```
-
-**On Windows (PowerShell):**
-```bash
-soundfile_analyzer_venv\Scripts\Activate.ps1
-```
-
-**On Windows (cmd):**
-```bash
-soundfile_analyzer_venv\Scripts\activate.bat
-```
-
-Your command prompt should now show `(soundfile_analyzer_venv)` prefix, indicating the virtual environment is active.
-
-### 4. Install Dependencies
-
-With the virtual environment activated, install project dependencies:
+From a checkout:
 
 ```bash
-pip install -r requirements.txt
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip
+python -m pip install .
 ```
 
-### 5. Deactivate Virtual Environment
-
-When finished working, deactivate the virtual environment:
-```bash
-deactivate
-```
-
-## Directory Layout
-
-```
-soundfile_analyzer/
-├── .github/              # GitHub configuration and workflows
-├── .vscode/              # VS Code settings and extensions
-├── artifacts/            # Generated output files (spectrograms, waveforms, etc.)
-├── docs/                 # Documentation and reference images
-├── src/                  # Source code
-├── tests/                # Unit tests
-├── .gitignore            # Git ignore rules
-├── .flake8               # Flake8 linter configuration
-├── LICENSE               # License file
-├── README.md             # This file
-├── requirements.txt      # Python dependencies
-└── TODO                  # Development todo list
-```
-
-### Directory Descriptions
-
-- **.github/** - GitHub-specific configuration, including workflows for CI/CD
-- **.vscode/** - VS Code workspace settings and recommended extensions
-- **artifacts/** - Output directory for generated visualizations and processed audio files
-- **docs/** - Documentation, including images and reference materials
-- **src/** - Main source code for the audio analyzer application
-- **tests/** - Automated tests for validating functionality
-
-## Runner CLI
-
-A comprehensive command-line interface for audio analysis and DJ operations available at `src/runner.py`.
-
-### Commands
-
-#### Listing and Info
-- `runner list [-d DIR]` - List audio files in directory (defaults to src/tests/)
-- `runner info FILE` - Show metadata and file information
-
-#### Visualization
-- `runner visualize FILE [--waveform] [--spectrogram] [--frequency]` - Create visual artifacts in ./artifacts/
-
-#### Playback
-- `runner play FILE [--full-length] [--demo] [--no-wait]` - Play audio file
-  - `--full-length` - Play entire file (default)
-  - `--demo` - Play only 3 seconds for preview
-  - `--no-wait` - Start playback in background (returns immediately)
-
-#### Playback Controls
-- `runner control stop` - Stop current playback
-- `runner control pause` - Pause current playback
-- `runner control resume` - Resume from pause
-- `runner control next` - Skip to next track
-- `runner control restart` - Restart current track
-- `runner control previous` - Go to previous track
-- `runner control status` - Show playback status
-
-#### Interactive DJ Mode
-- `runner dj [--queue FILE]` - Launch interactive DJ mode with responsive console
-  - `--queue FILE` - Use custom queue file (default: queue.json at repo root)
-
-#### Queue Management
-- `runner queue add FILE` - Add file to persistent queue
-- `runner queue show` - Display full queue with current item highlighted
-- `runner queue list` - List queue items
-- `runner queue next [--full-length] [--demo]` - Play next queued item
-
-#### Filtering
-- `runner apply-filter FILE --filter {lowpass,highpass,notch} [--cutoff N] [--q Q]` - Apply frequency filter
-
-#### Effects
-- `runner apply-effect FILE --effect {fader,reverb} [--gain N] [--delay MS] [--decay N] [--repeats N]` - Apply DJ effects
-
-### Enhanced Playback Features
-
-#### Full-Length Playback
-Audio files now play in their entirety by default. Use `--demo` to preview just 3 seconds.
-
-**Examples:**
-```bash
-# Play full song (default)
-python runner.py play /path/to/song.wav
-
-# Play only 3 seconds for preview
-python runner.py play /path/to/song.wav --demo
-```
-
-#### Real-Time Playback Display
-Console shows live progress with formatted time and percentage:
-
-**Now Playing Header:**
-```
-============================================================
-▶ NOW PLAYING
-============================================================
-File: song.wav
-Duration: 3:45
-============================================================
-```
-
-**Real-Time Progress Bar:**
-```
-Progress: [████████████░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 1:45/3:45 46.7%
-```
-
-Features:
-- Filled █ and empty ░ indicators showing progress
-- Current time and total duration (MM:SS format)
-- Percentage completion
-- Color-coded output for visibility
-- Real-time updates every 100ms
-- UTF-8 symbols for visual appeal (▶, ✓, █, ░, 🎵)
-
-**Completion Message:**
-```
-============================================================
-✓ Playback complete!
-============================================================
-```
-
-#### Enhanced Queue Display
-Visualize your queue with current item highlighted:
-
-```
-============================================================
-🎵 PLAYBACK QUEUE
-============================================================
-► current_song.wav (NOW PLAYING)
-
-Upcoming:
-  1. next_song_1.wav
-  2. next_song_2.wav
-  3. next_song_3.wav
-============================================================
-```
-
-Features:
-- Current item marked with ▶ indicator
-- Numbered queue items
-- Automatic truncation for large queues (shows first 10 + count of remaining)
-- Color-coded for easy reading
-- Persistent storage to `queue.json` at repository root
-
-#### Responsive Console with Playback Controls
-
-Keep the console responsive while music is playing! Start playback in background mode and issue control commands without interrupting the currently playing track.
-
-**Background Playback:**
-```bash
-# Start playback in background
-python runner.py play /path/to/song.wav --no-wait
-
-# Console returns immediately; music plays in the background
-# Now you can issue control commands:
-```
-
-**Playback Control Commands:**
-
-All control commands execute immediately without waiting for current playback to finish:
+For development and tests:
 
 ```bash
-# Control playback
-python runner.py control stop      # Stop current playback
-python runner.py control pause     # Pause playback
-python runner.py control resume    # Resume from pause
-python runner.py control next      # Skip to next track
-python runner.py control restart   # Restart current track from beginning
-python runner.py control previous  # Go to previous track
-python runner.py control status    # Show current playback status
+python -m pip install -r requirements.txt
 ```
 
-**Workflow Example:**
+The install creates the `soundfile-analyzer` command. You can also use
+`python -m src.runner` directly from the repository.
+
+## Start a set
+
+Launch the interactive console:
 
 ```bash
-# Terminal 1: Start playing a song in background
-$ python runner.py play song1.wav --no-wait
-Playback started in background. Use 'control status' to check status.
-
-# Terminal 1: Check status while music plays
-$ python runner.py control status
-State: playing
-Playing: True
-File: song1.wav
-
-# Terminal 1 or 2: Queue new songs
-$ python runner.py queue add song2.wav
-$ python runner.py queue add song3.wav
-
-# Terminal 1 or 2: View the queue while music plays
-$ python runner.py queue show
-
-# Terminal 1 or 2: Control playback at any time
-$ python runner.py control pause   # Pause the current song
-$ python runner.py control resume  # Resume playing
-$ python runner.py control next    # Skip to next track (song2.wav)
+soundfile-analyzer dj
 ```
 
-**Features:**
-- Console remains responsive for all commands
-- Background playback thread runs independently
-- Multiple control commands can be issued in quick succession
-- Thread-safe state management
-- Real-time progress display continues while console accepts commands
-- Graceful handling of all playback state transitions
-
-#### Interactive DJ Mode (Recommended!)
-
-For the best interactive experience, use DJ mode to keep the console fully responsive while DJing:
+To index a music folder immediately:
 
 ```bash
-python runner.py dj
+soundfile-analyzer dj --library ~/Music
 ```
 
-This launches an interactive prompt where you can type commands freely while music plays. No more waiting for playback to finish - your input goes directly to the prompt!
+Typical first-set workflow:
 
-**DJ Mode Commands:**
-```
-🎵 dj> play /path/to/song.wav          # Play a file
-🎵 dj> demo /path/to/song.wav          # Play 3-second preview
-🎵 dj> stop                             # Stop playback
-🎵 dj> pause                            # Pause playback
-🎵 dj> resume                           # Resume playback
-🎵 dj> restart                          # Restart current track
-🎵 dj> next                             # Skip to next track
-🎵 dj> prev                             # Go to previous track
-🎵 dj> status                           # Show playback status
-🎵 dj> add /path/to/song.wav            # Add file to queue
-🎵 dj> queue                            # Show queue
-🎵 dj> queue next                       # Play next queued track
-🎵 dj> queue clear                      # Clear the queue
-🎵 dj> help                             # Show help
-🎵 dj> exit                             # Exit DJ mode
+```text
+dj> add /music/intro.wav
+dj> add "/music/long filename.mp3"
+dj> queue
+dj> queue next
+dj> find house
+dj> pause
+dj> resume
+dj> next
+dj> status
+dj> exit
 ```
 
-**Why DJ Mode?**
+The queue is stored outside the repository by default. Use `--queue PATH` when
+you want a portable queue file next to a set or need separate queues:
 
-DJ Mode provides true interactivity:
-- Type commands at `🎵 dj>` prompt while music plays
-- Progress bar displays without interfering with your input
-- No waiting - commands are instant
-- Main thread handles user input, background thread handles playback
-- Thread-safe command processing
-- Perfect for live DJing scenarios
-- Automatic queue advancement on track completion
-
-**DJ Mode Example Workflow:**
 ```bash
-# Start DJ mode
-$ python runner.py dj
-
-🎵 dj> play intro.wav
-============================================================
-▶ NOW PLAYING
-============================================================
-File: intro.wav
-Duration: 0:30
-============================================================
-
-Progress: [████████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░] 0:10/0:30 33.3%
-
-🎵 dj> queue add next_song.wav    # Add while playing!
-Added to queue: next_song.wav
-
-🎵 dj> queue                       # Check queue
-============================================================
-🎵 PLAYBACK QUEUE
-============================================================
-► intro.wav (NOW PLAYING)
-
-Upcoming:
-  1. next_song.wav
-============================================================
-
-🎵 dj> status                      # Check status anytime
-▶ Playback Status:
-  State: playing
-  Playing: True
-  File: intro.wav
-
-🎵 dj> pause                       # Pause for announcements
-[Playback paused]
-
-🎵 dj> resume                      # Resume after speaking
-[Playback resumed]
-
-🎵 dj> exit
-Goodbye!
+soundfile-analyzer dj --queue ./my-set.json
 ```
 
-### Usage Examples
+### Interactive commands
 
-**Example 1: Play a Single Song**
+| Command | Purpose |
+| --- | --- |
+| `play FILE` | Play a full track immediately |
+| `demo FILE` | Preview a track for three seconds |
+| `pause` / `resume` | Pause or continue the current track |
+| `stop` | Stop playback |
+| `next` | Skip to the next queued track |
+| `previous` | Return to the previous track when history is available |
+| `restart` | Restart the current track |
+| `add FILE` | Add a track to the queue |
+| `queue` | Show the current and upcoming tracks |
+| `queue next` | Start the next queued track |
+| `queue clear` | Clear upcoming tracks |
+| `scan FOLDER` | Index supported audio files recursively |
+| `find TEXT` | Search indexed title, artist, album, or path |
+| `status` | Show playback and queue status |
+| `help` / `exit` | Show help or leave DJ mode |
+
+Paths containing spaces should be quoted. Missing files and playback failures
+are reported without terminating the console.
+
+The library index is intentionally lightweight and rebuilt when `scan` is run;
+it does not copy or modify music files. Search results show the original path so
+they can be passed directly to `play` or `add`.
+
+## One-shot commands
+
 ```bash
-cd src
-python runner.py play ../samples/music.wav
+soundfile-analyzer list --dir ~/Music
+soundfile-analyzer info ~/Music/track.mp3
+soundfile-analyzer play ~/Music/track.mp3
+soundfile-analyzer play ~/Music/track.mp3 --demo
+soundfile-analyzer queue add ~/Music/next.mp3
+soundfile-analyzer queue show
+soundfile-analyzer queue next
+soundfile-analyzer visualize ~/Music/track.wav --waveform --spectrogram
 ```
 
-Output:
-```
-============================================================
-▶ NOW PLAYING
-============================================================
-File: music.wav
-Duration: 4:32
-============================================================
+Run `soundfile-analyzer --help` and the command-specific `--help` flags for
+the complete option list.
 
-Progress: [████████████████████████████████░░░░░░░░░] 3:15/4:32 69.2%
-```
+## Analysis and preparation
 
-**Example 2: Queue Multiple Songs**
+The analyzer is intentionally secondary to the DJ workflow:
+
+- `info` reads duration, bitrate, sample rate, channels, and embedded tags.
+- `visualize` writes waveform, spectrogram, and frequency images to
+  `./artifacts/`.
+- `apply-filter` and `apply-effect` write processed audio to temporary output
+  files.
+
+These commands can require more CPU and memory than playback. Run them before a
+set rather than during a live performance.
+
+## Deliberately deferred
+
+The current lean release does not attempt beat matching, time-stretching, cue
+points, crossfading, normalization, or a full-screen terminal UI. Those features
+need backend-specific testing and should be added only after the dependable
+queue/library workflow is in regular use. Keeping them out of the live path
+also keeps installation and failure recovery simple.
+
+## Development
+
 ```bash
-# Add songs to queue
-python runner.py queue add song1.wav
-python runner.py queue add song2.wav
-python runner.py queue add song3.wav
-
-# View queue
-python runner.py queue show
-
-# Play next song with full-length playback and UI
-python runner.py queue next
+pytest
+python -m build
 ```
 
-**Example 3: Demo Mode Preview**
-```bash
-# Quick 3-second preview
-python runner.py play song.wav --demo
-```
-
-### Running the CLI
-
-From the repository root:
-```bash
-python -m src.runner <command> [options]
-```
-
-Or from src directory:
-```bash
-python runner.py <command> [options]
-```
-
-Run tests with `pytest` from the repo root:
-```bash
-pytest tests/ -v
-```
-
-### Dependencies
-
-Core features require:
-- librosa - Audio analysis
-- soundfile - Audio I/O
-- scipy - Signal processing
-- python-vlc - Audio playback
-- colorama - Console colors
-
-See `requirements.txt` for complete dependency list.
+Playback tests use the real command and queue interfaces but do not require an
+audio device. VLC/device smoke tests should be run manually on the target Linux
+machine.
 
 ## License
 
-See [LICENSE](LICENSE) file for details.
+See [LICENSE](LICENSE).

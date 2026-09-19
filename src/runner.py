@@ -91,8 +91,10 @@ def main(argv: list[str] | None = None) -> None:
 
     p_dj = sub.add_parser("dj", help="Interactive DJ mode with responsive console")
     p_dj.add_argument("--queue", help="Path to queue file")
+    p_dj.add_argument("--library", help="Folder to scan when DJ mode starts")
 
     p_queue = sub.add_parser("queue", help="Queue operations")
+    p_queue.add_argument("--queue", help="Path to the persistent queue file")
     qsub = p_queue.add_subparsers(dest="qcmd")
     qadd = qsub.add_parser("add")
     qadd.add_argument("file")
@@ -122,10 +124,7 @@ def main(argv: list[str] | None = None) -> None:
 
     args = parser.parse_args(argv)
 
-    # persistent queue stored at repository root (one level above src)
-    project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-    queue_file = os.path.join(project_root, "queue.json")
-    q = PlaybackQueue(queue_file) if PlaybackQueue is not None else None
+    q = PlaybackQueue(args.queue) if PlaybackQueue is not None and args.cmd == "queue" else None
 
     if args.cmd == "list":
         files = FileInfos.list_files(args.dir) if FileInfos is not None else FileHandler(args.dir, "").print_files()
@@ -169,9 +168,9 @@ def main(argv: list[str] | None = None) -> None:
         global _playback_manager
         if _playback_manager is None and PlaybackManager is not None:
             _playback_manager = PlaybackManager()
-        
+
         full_length = not args.demo if hasattr(args, 'demo') else True
-        
+
         if _playback_manager and hasattr(args, 'no_wait') and args.no_wait:
             # Background playback mode
             _playback_manager.play(args.file, full_length=full_length, show_ui=True)
@@ -186,7 +185,7 @@ def main(argv: list[str] | None = None) -> None:
         if _playback_manager is None or PlaybackManager is None:
             print("PlaybackManager not available")
             return
-        
+
         if args.ctrl == "stop":
             _playback_manager.stop()
         elif args.ctrl == "pause":
@@ -211,13 +210,15 @@ def main(argv: list[str] | None = None) -> None:
         if PlaybackREPL is None:
             print("DJ mode not available")
             return
-        
+
         # Determine queue file location
-        queue_file = args.queue if hasattr(args, 'queue') and args.queue else \
-                     os.path.join(project_root, "queue.json")
-        
+        queue_file = args.queue if hasattr(args, "queue") and args.queue else None
+
         # Launch interactive DJ mode
-        repl = PlaybackREPL(queue_file=queue_file)
+        repl = PlaybackREPL(
+            queue_file=queue_file,
+            library_path=args.library if hasattr(args, "library") else None,
+        )
         try:
             repl.run()
         except KeyboardInterrupt:
